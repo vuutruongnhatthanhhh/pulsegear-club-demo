@@ -689,7 +689,7 @@ export default function Page() {
                     textShadow: `0 0 60px ${C.accent}30`,
                   }}
                 >
-                  ĐƯỢC TẠO
+                  TẠO RA
                 </span>
                 <span>KHÁC BIỆT.</span>
               </h2>
