@@ -1,5 +1,5 @@
 const config = {
-  companyName: "DAI & PARTNERS",
+  companyName: "PULSEGEAR.CLUB",
   companyPhone: "0812.303.471",
   companyEmail: "contact.tjzenn@gmail.com",
   companyField: "DAI & PARTNERS",
