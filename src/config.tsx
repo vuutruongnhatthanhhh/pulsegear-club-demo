@@ -6,7 +6,7 @@ const config = {
 
   // SEO
   seoTitle: "DAI & PARTNERS",
-  seoDescription: "",
+  seoDescription: "Website bán đồ thể thao",
 
   //SOCIAL
   facebook: "https://www.facebook.com/profile.php?id=61577630908608",
