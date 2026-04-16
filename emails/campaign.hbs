@@ -1,0 +1,161 @@
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{subject}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      /* reset nhẹ cho email */ body,table,td,a { -ms-text-size-adjust:100%;
+      -webkit-text-size-adjust:100%; text-size-adjust:100%; } img {
+      -ms-interpolation-mode:bicubic; border:0; outline:0; text-decoration:none;
+      display:block; } table { border-collapse:collapse !important; } body {
+      margin:0; padding:0; width:100% !important; background:#0f172a; } .wrap {
+      max-width:640px; margin:0 auto; padding:24px; } /* card ngoài cùng: KHÔNG
+      bo góc theo yêu cầu */ .card { background:#0b1220; border:1px solid
+      #1e293b; border-radius:0; } .p-24 { padding:24px; } .text { color:#e2e8f0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue',
+      Arial; line-height:1.6; } .center { text-align:center; } .heading {
+      color:#ffffff; font-weight:800; font-size:28px; margin:0;
+      letter-spacing:0.2px; } .price-accent { color:#22d3ee; font-weight:900; }
+      .sub { color:#94a3b8; font-size:14px; margin:8px 0 0 0; } .btn {
+      display:inline-block; padding:12px 20px; border-radius:10px;
+      background:#6366f1; color:#fff !important; font-weight:700;
+      text-decoration:none; }
+      .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}
+      .row { width:100%; } .col { vertical-align:top; padding:8px; } .col-6 {
+      width:50%; } .bullet { margin:0 0 10px 0; font-size:15px; } .bullet-ico {
+      width:18px; height:18px; border-radius:999px; background:#0097b2;
+      text-align:center; font-weight:700; color:white; line-height:18px;
+      font-size: 10px; display:inline-block; } .bullet-text {
+      display:inline-block; margin-left:10px; color:#e2e8f0; font-size: 20px; }
+      .footer { color:#94a3b8; font-size:12px; } .muted-link { color:#94a3b8;
+      text-decoration:underline; } @media (max-width:480px){ .col-6 {
+      display:block; width:100% !important; } .heading { font-size:22px; } }
+      .preheader { display:none!important; visibility:hidden; opacity:0;
+      color:transparent; height:0; width:0; overflow:hidden; mso-hide:all; }
+    </style>
+  </head>
+  <body class="text">
+    {{#if preheader}}<div class="preheader">{{preheader}}</div>{{/if}}
+
+    <div class="wrap">
+      <table role="presentation" class="card" width="100%">
+        <tr>
+          <td class="p-24">
+            <!-- Header: logo + chữ TJZenn kế bên -->
+            <table role="presentation" width="100%">
+              <tr>
+                <td style="text-align:center;">
+                  <table role="presentation" style="margin:0 auto;">
+                    <tr>
+                      <td style="vertical-align:middle;">
+                        <a
+                          href="https://tjzenn.com"
+                          style="text-decoration:none;"
+                        >
+                          <img
+                            src="https://tjzenn.com/images/logo.png"
+                            alt="TJZenn"
+                            width="100"
+                            height="95"
+                          />
+                        </a>
+                      </td>
+                      <td style="vertical-align:middle; padding-left:10px;">
+                        <span
+                          style="
+  font-family:'Roboto','Helvetica Neue','Arial',sans-serif;
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:.5px;
+  color:#fff;
+  text-shadow:0 2px 0 #0b1220,0 0 8px rgba(34,211,238,.35);
+"
+                        >
+                          TJZenn
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Hero title -->
+            <section class="center mt-16">
+              <h1 class="heading" style="text-transform:uppercase;">
+                Thiết kế
+                <span style="color:#bd5fcc;">website</span>
+                chuyên nghiệp
+              </h1>
+              <p class="heading" style="margin-top:6px;">Chỉ từ
+                <span style="font-size: 40px;" class="price-accent">1,5 triệu</span></p>
+            </section>
+
+            <!-- 2 cột: bullet list (trái) + mascot (phải) -->
+            <table role="presentation" class="row mt-16">
+              <tr>
+                <!-- LEFT -->
+                <td class="col col-6">
+                  <p class="bullet"><span class="bullet-ico">✓</span><span
+                      class="bullet-text"
+                    >Tặng domain miễn phí</span></p>
+                  <p class="bullet"><span class="bullet-ico">✓</span><span
+                      class="bullet-text"
+                    >Không chi phí phát sinh</span></p>
+                  <p class="bullet"><span class="bullet-ico">✓</span><span
+                      class="bullet-text"
+                    >Giao diện theo yêu cầu</span></p>
+                  <p class="bullet"><span class="bullet-ico">✓</span><span
+                      class="bullet-text"
+                    >Bảo hành trọn đời</span></p>
+
+                  <div class="mt-16">
+                    <a class="btn" href="https://tjzenn.com/contact">Liên hệ
+                      ngay</a>
+                  </div>
+                </td>
+
+                <!-- RIGHT -->
+                <td class="col col-6" style="text-align:center;">
+                  <!-- Thay URL ảnh mascot bằng ảnh thật của anh -->
+                  <img
+                    src="https://tjzenn.com/images/email-mkt/email_mkt_website.png"
+                    alt="TJZenn Mascot"
+                    width="260"
+                    style="margin:0 auto;"
+                  />
+                </td>
+              </tr>
+            </table>
+
+            <!-- Footer (đường kẻ + info) -->
+            <table role="presentation" width="100%" class="mt-24">
+              <tr><td style="height:1px; background:#1e293b;"></td></tr>
+              <tr>
+                <td class="center mt-16 footer">
+                  <p style="margin:0;">©
+                    {{year}}
+                    TJZenn. All rights reserved.</p>
+                  <p style="margin:6px 0 0 0;">
+                    <a
+                      class="muted-link"
+                      href="https://tjzenn.com"
+                    >tjzenn.com</a>
+                    •
+                    <a
+                      class="muted-link"
+                      href="mailto:contact.tjzenn@gmail.com"
+                    >contact.tjzenn@gmail.com</a>
+                    •
+                    <span>0812.303.471</span>
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
