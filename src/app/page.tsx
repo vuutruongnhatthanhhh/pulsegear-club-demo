@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Shield,
 } from "lucide-react";
+import { useI18nStore } from "@/lib/i18n/store";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -82,40 +83,146 @@ const UNS = (id: string, w = 1920, q = 80) =>
 const VOID = "javascript:void(0)";
 
 /* ═══════════════════════════════════════════
+   COPY (bilingual UI strings)
+═══════════════════════════════════════════ */
+const T = {
+  marquee: [
+    {
+      vi: "MIỄN PHÍ VẬN CHUYỂN ĐƠN TRÊN 2 TRIỆU",
+      en: "FREE SHIPPING ON ORDERS OVER 2,000,000₫",
+    },
+    { vi: "HÀNG MỚI VỀ MỖI TUẦN", en: "NEW ARRIVALS EVERY WEEK" },
+    { vi: "ĐỔI TRẢ MIỄN PHÍ 30 NGÀY", en: "FREE 30-DAY RETURNS" },
+    {
+      vi: "THIẾT KẾ CHO HIỆU SUẤT ĐỈNH CAO",
+      en: "DESIGNED FOR PEAK PERFORMANCE",
+    },
+  ],
+  scrollDown: { vi: "CUỘN XUỐNG", en: "SCROLL DOWN" },
+
+  collectionsEyebrow: { vi: "CÁC BỘ SƯU TẬP", en: "COLLECTIONS" },
+  shopByCategory: { vi: "MUA THEO DANH MỤC", en: "SHOP BY CATEGORY" },
+  viewAll: { vi: "XEM TẤT CẢ", en: "VIEW ALL" },
+  shopNow: { vi: "MUA NGAY", en: "SHOP NOW" },
+
+  ourStoryEyebrow: { vi: "CÂU CHUYỆN CỦA CHÚNG TÔI", en: "OUR STORY" },
+  storyLine1: { vi: "CHÚNG TÔI", en: "WE" },
+  storyLine2: { vi: "TẠO RA", en: "MAKE THE" },
+  storyLine3: { vi: "KHÁC BIỆT.", en: "DIFFERENCE." },
+  storyP1: {
+    vi: "Thành lập bởi các vận động viên, dành cho các vận động viên. Chúng tôi bắt đầu PULSEGEAR.CLUB vì không thể tìm được trang phục theo kịp với mình.",
+    en: "Founded by athletes, for athletes. We started PULSEGEAR.CLUB because we couldn't find gear that kept up with us.",
+  },
+  storyP2: {
+    vi: "Mỗi sản phẩm được thiết kế với một ám ảnh duy nhất: hiệu suất. Từ phòng lab đến sàn tập, từ ý tưởng đến tủ quần áo của bạn — chúng tôi không bao giờ chấp nhận mức trung bình.",
+    en: "Every product is engineered with one obsession: performance. From the lab to the gym floor, from concept to your closet — we never settle for average.",
+  },
+  readStory: { vi: "ĐỌC CÂU CHUYỆN", en: "READ OUR STORY" },
+  engineeredFor: {
+    vi: "ĐƯỢC THIẾT KẾ VÌ HIỆU SUẤT",
+    en: "ENGINEERED FOR PERFORMANCE",
+  },
+  trainLikePro: { vi: "TẬP LUYỆN NHƯ PRO", en: "TRAIN LIKE A PRO" },
+  statAthletes: { vi: "Vận động viên", en: "Athletes" },
+  statHappy: { vi: "Khách hài lòng", en: "Happy Customers" },
+
+  dropsEyebrow: { vi: "BỘ SƯU TẬP", en: "NEW DROPS" },
+  dropsTitle1: { vi: "BỘ SƯU TẬP", en: "LATEST" },
+  dropsTitle2: { vi: "MỚI NHẤT", en: "DROPS" },
+
+  featuresEyebrow: {
+    vi: "ĐIỀU LÀM PULSEGEAR KHÁC BIỆT",
+    en: "WHAT MAKES PULSEGEAR DIFFERENT",
+  },
+  featuresTitle1: { vi: "ĐƯỢC TẠO RA ĐỂ", en: "BUILT TO" },
+  featuresTitle2: { vi: "CHIẾN THẮNG", en: "WIN" },
+
+  serviceShippingTitle: { vi: "MIỄN PHÍ VẬN CHUYỂN", en: "FREE SHIPPING" },
+  serviceShippingSub: {
+    vi: "Đơn hàng trên 2 triệu toàn quốc",
+    en: "Orders over 2,000,000₫ nationwide",
+  },
+  serviceReturnsTitle: { vi: "ĐỔI TRẢ 30 NGÀY", en: "30-DAY RETURNS" },
+  serviceReturnsSub: {
+    vi: "Đổi trả dễ dàng, không cần lý do",
+    en: "Easy returns, no questions asked",
+  },
+  serviceQualityTitle: { vi: "CAM KẾT CHẤT LƯỢNG", en: "QUALITY GUARANTEE" },
+  serviceQualitySub: {
+    vi: "Bền bỉ hoặc hoàn tiền 100%",
+    en: "Built to last or your money back",
+  },
+
+  reviewsEyebrow: { vi: "CỘNG ĐỒNG YÊU THÍCH", en: "LOVED BY THE COMMUNITY" },
+  reviewsTitle1: { vi: "VẬN ĐỘNG VIÊN THẬT.", en: "REAL ATHLETES." },
+  reviewsTitle2: { vi: "KẾT QUẢ THẬT.", en: "REAL RESULTS." },
+
+  communityJoin1: { vi: "THAM GIA", en: "JOIN THE" },
+  communityJoin2: { vi: "PHONG TRÀO", en: "MOVEMENT" },
+};
+
+const TILE_LABELS = [
+  { vi: "TẬP LUYỆN", en: "TRAINING" },
+  { vi: "LIỀN MẠCH", en: "SEAMLESS" },
+  { vi: "CHẠY BỘ", en: "RUNNING" },
+  { vi: "ÁO KHOÁC", en: "JACKETS" },
+  { vi: "GỬ TẠ", en: "LIFTING" },
+  { vi: "PHỤC HỒI", en: "RECOVERY" },
+];
+
+/* ═══════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════ */
 const SLIDES = [
   {
-    eyebrow: "BỘ SƯU TẬP SS25",
-    headline: ["VƯỢT QUA", "MỌI", "GIỚI HẠN"],
-    accent: "GIỚI HẠN",
-    sub: "Bộ sưu tập PULSEGEAR SS25 đã ra mắt. Được tạo ra cho những người không bao giờ dừng lại.",
-    cta1: { label: "MUA ĐỒ NAM", href: VOID },
-    cta2: { label: "MUA ĐỒ NỮ", href: VOID },
+    eyebrow: { vi: "BỘ SƯU TẬP SS25", en: "SS25 COLLECTION" },
+    headline: {
+      vi: ["VƯỢT QUA", "MỌI", "GIỚI HẠN"],
+      en: ["BREAK", "EVERY", "LIMIT"],
+    },
+    accentIndex: 2,
+    sub: {
+      vi: "Bộ sưu tập PULSEGEAR SS25 đã ra mắt. Được tạo ra cho những người không bao giờ dừng lại.",
+      en: "The PULSEGEAR SS25 collection has landed. Made for those who never stop.",
+    },
+    cta1: { vi: "MUA ĐỒ NAM", en: "SHOP MEN" },
+    cta2: { vi: "MUA ĐỒ NỮ", en: "SHOP WOMEN" },
     glow: "#FF3C00",
-    tag: "MỚI VỀ",
+    tag: { vi: "MỚI VỀ", en: "NEW IN" },
     bg: UNS("1534438327276-14e5300c3a48"),
   },
   {
-    eyebrow: "SEAMLESS PRO V2",
-    headline: ["LIỀN MẠCH", "KHÔNG", "BÓ BUỘC"],
-    accent: "BÓ BUỘC",
-    sub: "Công nghệ liền mạch tiên tiến nhất. Co giãn 4 chiều. Không hạn chế. Hiệu suất tuyệt đối.",
-    cta1: { label: "XEM NGAY", href: VOID },
-    cta2: { label: "XEM LOOKBOOK", href: VOID },
+    eyebrow: { vi: "SEAMLESS PRO V2", en: "SEAMLESS PRO V2" },
+    headline: {
+      vi: ["LIỀN MẠCH", "KHÔNG", "BÓ BUỘC"],
+      en: ["SEAMLESS", "NEVER", "RESTRICTED"],
+    },
+    accentIndex: 2,
+    sub: {
+      vi: "Công nghệ liền mạch tiên tiến nhất. Co giãn 4 chiều. Không hạn chế. Hiệu suất tuyệt đối.",
+      en: "Our most advanced seamless technology. 4-way stretch. Zero restriction. Absolute performance.",
+    },
+    cta1: { vi: "XEM NGAY", en: "SHOP NOW" },
+    cta2: { vi: "XEM LOOKBOOK", en: "VIEW LOOKBOOK" },
     glow: "#00C8FF",
-    tag: "BÁN CHẠY NHẤT",
+    tag: { vi: "BÁN CHẠY NHẤT", en: "BEST SELLER" },
     bg: UNS("1571019614242-c5c5dee9f50b"),
   },
   {
-    eyebrow: "BỘ SƯU TẬP PHỤ NỮ",
-    headline: ["SINH RA", "ĐỂ", "THI ĐẤU"],
-    accent: "THI ĐẤU",
-    sub: "Thiết kế cho cơ thể phụ nữ. Từng đường may, từng mũi chỉ đều vì hiệu suất tối đa.",
-    cta1: { label: "MUA ĐỒ NỮ", href: VOID },
-    cta2: { label: "KHÁM PHÁ", href: VOID },
+    eyebrow: { vi: "BỘ SƯU TẬP PHỤ NỮ", en: "WOMEN'S COLLECTION" },
+    headline: {
+      vi: ["SINH RA", "ĐỂ", "THI ĐẤU"],
+      en: ["BORN", "TO", "COMPETE"],
+    },
+    accentIndex: 2,
+    sub: {
+      vi: "Thiết kế cho cơ thể phụ nữ. Từng đường may, từng mũi chỉ đều vì hiệu suất tối đa.",
+      en: "Designed for the female body. Every seam, every stitch built for maximum performance.",
+    },
+    cta1: { vi: "MUA ĐỒ NỮ", en: "SHOP WOMEN" },
+    cta2: { vi: "KHÁM PHÁ", en: "EXPLORE" },
     glow: "#A855F7",
-    tag: "XU HƯỚNG",
+    tag: { vi: "XU HƯỚNG", en: "TRENDING" },
     bg: UNS("1518611012118-696072aa579a"),
   },
 ];
@@ -123,56 +230,56 @@ const SLIDES = [
 const CATEGORIES = [
   {
     id: 1,
-    label: "ĐỒ NAM",
-    sub: "Tập luyện & Phong cách",
-    count: "120+ sản phẩm",
+    label: { vi: "ĐỒ NAM", en: "MEN" },
+    sub: { vi: "Tập luyện & Phong cách", en: "Training & Style" },
+    count: { vi: "120+ sản phẩm", en: "120+ products" },
     accentColor: "#FF3C00",
-    tag: "MỚI VỀ",
+    tag: { vi: "MỚI VỀ", en: "NEW IN" },
     img: UNS("1583454110551-21f2fa2afe61", 900),
   },
   {
     id: 2,
-    label: "ĐỒ NỮ",
-    sub: "Hiệu suất & Thoải mái",
-    count: "140+ sản phẩm",
+    label: { vi: "ĐỒ NỮ", en: "WOMEN" },
+    sub: { vi: "Hiệu suất & Thoải mái", en: "Performance & Comfort" },
+    count: { vi: "140+ sản phẩm", en: "140+ products" },
     accentColor: "#A855F7",
-    tag: "XU HƯỚNG",
+    tag: { vi: "XU HƯỚNG", en: "TRENDING" },
     img: UNS("1571019614242-c5c5dee9f50b", 900),
   },
   {
     id: 3,
-    label: "LIỀN MẠCH",
-    // sub: "Dòng đặc trưng thương hiệu",
-    count: "60+ sản phẩm",
+    label: { vi: "LIỀN MẠCH", en: "SEAMLESS" },
+    // sub: { vi: "Dòng đặc trưng thương hiệu", en: "Signature brand line" },
+    count: { vi: "60+ sản phẩm", en: "60+ products" },
     accentColor: "#00C8FF",
-    tag: "BÁN CHẠY",
+    tag: { vi: "BÁN CHẠY", en: "BEST SELLER" },
     img: UNS("1548690312-e3b507d8c110", 900),
   },
   {
     id: 4,
-    label: "ÁO KHOÁC",
-    // sub: "Jacket & Lớp mặc ngoài",
-    count: "40+ sản phẩm",
+    label: { vi: "ÁO KHOÁC", en: "JACKETS" },
+    // sub: { vi: "Jacket & Lớp mặc ngoài", en: "Jackets & outerwear" },
+    count: { vi: "40+ sản phẩm", en: "40+ products" },
     accentColor: "#F59E0B",
-    tag: "MỚI",
+    tag: { vi: "MỚI", en: "NEW" },
     img: UNS("1539109136881-3be0616acf4b", 900),
   },
   {
     id: 5,
-    label: "PHỤ KIỆN",
-    // sub: "Túi, Mũ & Nhiều hơn",
-    count: "80+ sản phẩm",
+    label: { vi: "PHỤ KIỆN", en: "ACCESSORIES" },
+    // sub: { vi: "Túi, Mũ & Nhiều hơn", en: "Bags, caps & more" },
+    count: { vi: "80+ sản phẩm", en: "80+ products" },
     accentColor: "#22C55E",
     tag: null,
     img: UNS("1552674605-db6ffd4facb5", 900),
   },
   {
     id: 6,
-    label: "GIẢM GIÁ",
-    // sub: "Đến 50% cho tất cả",
-    count: "200+ sản phẩm",
+    label: { vi: "GIẢM GIÁ", en: "SALE" },
+    // sub: { vi: "Đến 50% cho tất cả", en: "Up to 50% off everything" },
+    count: { vi: "200+ sản phẩm", en: "200+ products" },
     accentColor: "#FF3C00",
-    tag: "ĐẾN -50%",
+    tag: { vi: "ĐẾN -50%", en: "UP TO -50%" },
     img: UNS("1571019613454-1cb2f99b2d8b", 900),
   },
 ];
@@ -180,28 +287,37 @@ const CATEGORIES = [
 const DROPS = [
   {
     id: 1,
-    badge: "VỪA RA MẮT",
+    badge: { vi: "VỪA RA MẮT", en: "JUST LAUNCHED" },
     title: "APEX PRO SERIES",
-    sub: "Trang phục tập luyện hiệu suất cao dành cho vận động viên đỉnh cao.",
-    tag: "Nam & Nữ",
+    sub: {
+      vi: "Trang phục tập luyện hiệu suất cao dành cho vận động viên đỉnh cao.",
+      en: "High-performance training gear built for elite athletes.",
+    },
+    tag: { vi: "Nam & Nữ", en: "Men & Women" },
     glow: "#FF3C00",
     img: UNS("1576678927484-cc907957088c", 900),
   },
   {
     id: 2,
-    badge: "MÙA MỚI",
+    badge: { vi: "MÙA MỚI", en: "NEW SEASON" },
     title: "SEAMLESS V2",
-    sub: "Cảm giác như làn da thứ hai với công nghệ co giãn 4 chiều.",
-    tag: "Bộ sưu tập Nữ",
+    sub: {
+      vi: "Cảm giác như làn da thứ hai với công nghệ co giãn 4 chiều.",
+      en: "Feels like a second skin with 4-way stretch technology.",
+    },
+    tag: { vi: "Bộ sưu tập Nữ", en: "Women's Collection" },
     glow: "#A855F7",
     img: UNS("1552674605-db6ffd4facb5", 900),
   },
   {
     id: 3,
-    badge: "BÁN CHẠY NHẤT",
+    badge: { vi: "BÁN CHẠY NHẤT", en: "BEST SELLER" },
     title: "VITAL SEAMLESS",
-    sub: "Bộ sưu tập đã tạo nên tên tuổi chúng tôi. Phiên bản tái sinh.",
-    tag: "Dòng đặc trưng",
+    sub: {
+      vi: "Bộ sưu tập đã tạo nên tên tuổi chúng tôi. Phiên bản tái sinh.",
+      en: "The collection that made our name. Reborn.",
+    },
+    tag: { vi: "Dòng đặc trưng", en: "Signature Line" },
     glow: "#00C8FF",
     img: UNS("1579758629938-03607ccdbaba", 900),
   },
@@ -211,55 +327,76 @@ const FEATURES = [
   {
     icon: <Zap size={22} />,
     num: "01",
-    title: "KỸ THUẬT CAO",
-    desc: "Co giãn 4 chiều, thoát ẩm và công nghệ chống mùi trong từng sản phẩm. Được tạo ra để di chuyển cùng cơ thể bạn.",
+    title: { vi: "KỸ THUẬT CAO", en: "ADVANCED TECH" },
+    desc: {
+      vi: "Co giãn 4 chiều, thoát ẩm và công nghệ chống mùi trong từng sản phẩm. Được tạo ra để di chuyển cùng cơ thể bạn.",
+      en: "4-way stretch, moisture-wicking and odor-control tech in every piece. Built to move with your body.",
+    },
   },
   {
     icon: <Star size={22} />,
     num: "02",
-    title: "CHẤT LƯỢNG CAO CẤP",
-    desc: "Đường may gia cố, màu vải bền màu, chịu được hàng nghìn lần giặt. Chúng tôi đứng sau từng mũi chỉ.",
+    title: { vi: "CHẤT LƯỢNG CAO CẤP", en: "PREMIUM QUALITY" },
+    desc: {
+      vi: "Đường may gia cố, màu vải bền màu, chịu được hàng nghìn lần giặt. Chúng tôi đứng sau từng mũi chỉ.",
+      en: "Reinforced seams, fade-resistant fabric, built to survive thousands of washes. We stand behind every stitch.",
+    },
   },
   {
     icon: <Shield size={22} />,
     num: "03",
-    title: "ĐA DẠNG KÍCH CỠ",
-    desc: "Từ XS đến 4XL, thiết kế từ dữ liệu cơ thể thực của vận động viên. Vì trang phục hiệu suất phải vừa với tất cả.",
+    title: { vi: "ĐA DẠNG KÍCH CỠ", en: "SIZE INCLUSIVE" },
+    desc: {
+      vi: "Từ XS đến 4XL, thiết kế từ dữ liệu cơ thể thực của vận động viên. Vì trang phục hiệu suất phải vừa với tất cả.",
+      en: "From XS to 4XL, designed from real athlete body data. Because performance gear should fit everyone.",
+    },
   },
   {
     icon: <RotateCcw size={22} />,
     num: "04",
-    title: "TƯƠNG LAI BỀN VỮNG",
-    desc: "100% bao bì tái chế. Nguồn gốc có trách nhiệm. Chúng tôi xây dựng thương hiệu tồn tại lâu dài — cả với hành tinh.",
+    title: { vi: "TƯƠNG LAI BỀN VỮNG", en: "SUSTAINABLE FUTURE" },
+    desc: {
+      vi: "100% bao bì tái chế. Nguồn gốc có trách nhiệm. Chúng tôi xây dựng thương hiệu tồn tại lâu dài — cả với hành tinh.",
+      en: "100% recycled packaging. Responsibly sourced. We're building a brand that lasts — for the planet too.",
+    },
   },
 ];
 
 const STATS = [
-  { value: "2.5M+", label: "Thành viên toàn cầu" },
-  { value: "98%", label: "Tỷ lệ hài lòng" },
-  { value: "6+", label: "Năm đổi mới" },
-  { value: "45+", label: "Quốc gia giao hàng" },
+  { value: "2.5M+", label: { vi: "Thành viên toàn cầu", en: "Global members" } },
+  { value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
+  { value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
+  { value: "45+", label: { vi: "Quốc gia giao hàng", en: "Countries shipped" } },
 ];
 
 const REVIEWS = [
   {
     name: "Minh Anh",
     handle: "@minhanh.fit",
-    text: "Bộ APEX thực sự là trang phục tập luyện tốt nhất tôi từng có. Vải như làn da thứ hai, thoải mái cả buổi tập dài.",
+    text: {
+      vi: "Bộ APEX thực sự là trang phục tập luyện tốt nhất tôi từng có. Vải như làn da thứ hai, thoải mái cả buổi tập dài.",
+      en: "The APEX set is honestly the best training gear I've ever owned. Fabric feels like a second skin, comfortable through the longest sessions.",
+    },
     stars: 5,
     product: "APEX Pro Shorts",
   },
   {
     name: "Tuấn Kiệt",
     handle: "@kiettrain",
-    text: "Cuối cùng cũng có thương hiệu hiểu vận động viên thực sự cần gì. Từng chi tiết đều hoàn hảo, không có gì để chê.",
+    text: {
+      vi: "Cuối cùng cũng có thương hiệu hiểu vận động viên thực sự cần gì. Từng chi tiết đều hoàn hảo, không có gì để chê.",
+      en: "Finally a brand that actually gets what athletes need. Every detail is on point, nothing to complain about.",
+    },
     stars: 5,
     product: "Vital Seamless Tee",
   },
   {
     name: "Thu Hà",
     handle: "@thuha.lifts",
-    text: "Tôi đã mặc Pulsegear qua 3 cuộc thi rồi. Chưa bao giờ thất vọng. Mua cho cả team rồi ai cũng mê.",
+    text: {
+      vi: "Tôi đã mặc Pulsegear qua 3 cuộc thi rồi. Chưa bao giờ thất vọng. Mua cho cả team rồi ai cũng mê.",
+      en: "I've worn Pulsegear through 3 competitions now. Never let me down. Got the whole team wearing it and everyone's obsessed.",
+    },
     stars: 5,
     product: "Seamless V2 Leggings",
   },
@@ -285,6 +422,8 @@ function Noise({ op = 0.03 }: { op?: number }) {
    PAGE
 ═══════════════════════════════════════════ */
 export default function Page() {
+  const lang = useI18nStore((s) => s.lang);
+
   /* ── HERO SLIDE (fixed with ref) ── */
   const [heroIdx, setHeroIdx] = useState(0);
   const [animKey, setAnimKey] = useState(0);
@@ -397,19 +536,19 @@ export default function Page() {
               className="inline-block h-1.5 w-1.5 animate-pulse rounded-full"
               style={{ backgroundColor: slide.glow }}
             />
-            {slide.tag}
+            {slide.tag[lang]}
           </div>
 
           <p
             className="hero-anim hero-d1 mb-3 text-[13px] font-black tracking-[0.45em] uppercase opacity-0"
             style={{ color: slide.glow }}
           >
-            {slide.eyebrow}
+            {slide.eyebrow[lang]}
           </p>
 
           <h1 className="hero-anim hero-d2 max-w-4xl opacity-0 text-[clamp(2rem,4.8vw,4.3rem)] font-black leading-[1.35] tracking-[-0.02em]">
-            {slide.headline.map((word, i) =>
-              word === slide.accent ? (
+            {slide.headline[lang].map((word, i) =>
+              i === slide.accentIndex ? (
                 <span
                   key={i}
                   className="block"
@@ -437,25 +576,25 @@ export default function Page() {
             className="hero-anim hero-d3 max-w-md text-[18px] leading-relaxed opacity-0"
             style={{ color: "rgba(255,255,255,0.55)" }}
           >
-            {slide.sub}
+            {slide.sub[lang]}
           </p>
 
           <div className="hero-anim hero-d4 mt-9 flex flex-wrap gap-4 opacity-0">
-            <a href={slide.cta1.href}>
+            <a href={VOID}>
               <button
                 className="group relative overflow-hidden px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03] active:scale-[0.97]"
                 style={{ backgroundColor: slide.glow }}
               >
-                <span className="relative z-10">{slide.cta1.label}</span>
+                <span className="relative z-10">{slide.cta1[lang]}</span>
                 <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
               </button>
             </a>
-            <a href={slide.cta2.href}>
+            <a href={VOID}>
               <button
                 className="px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-white/55 transition-all hover:text-white"
                 style={{ border: "1px solid rgba(255,255,255,0.15)" }}
               >
-                {slide.cta2.label}
+                {slide.cta2[lang]}
               </button>
             </a>
           </div>
@@ -516,7 +655,7 @@ export default function Page() {
             className="text-[9px] font-black tracking-[0.4em] uppercase"
             style={{ color: "rgba(255,255,255,0.18)" }}
           >
-            CUỘN XUỐNG
+            {T.scrollDown[lang]}
           </span>
           <div
             className="h-8 w-px"
@@ -536,13 +675,13 @@ export default function Page() {
         <div className="marquee-run flex gap-16">
           {Array.from({ length: 2 }, (_, rep) =>
             [
-              "MIỄN PHÍ VẬN CHUYỂN ĐƠN TRÊN 2 TRIỆU",
+              T.marquee[0][lang],
               "★ PULSEGEAR.CLUB ★",
-              "HÀNG MỚI VỀ MỖI TUẦN",
+              T.marquee[1][lang],
               "★ PULSEGEAR.CLUB ★",
-              "ĐỔI TRẢ MIỄN PHÍ 30 NGÀY",
+              T.marquee[2][lang],
               "★ PULSEGEAR.CLUB ★",
-              "THIẾT KẾ CHO HIỆU SUẤT ĐỈNH CAO",
+              T.marquee[3][lang],
               "★ PULSEGEAR.CLUB ★",
             ].map((item, i) => (
               <span
@@ -565,10 +704,10 @@ export default function Page() {
                 className="mb-2 text-[10px] font-black tracking-[0.4em] uppercase"
                 style={{ color: C.accent }}
               >
-                CÁC BỘ SƯU TẬP
+                {T.collectionsEyebrow[lang]}
               </p>
               <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-                MUA THEO DANH MỤC
+                {T.shopByCategory[lang]}
               </h2>
             </div>
             <a
@@ -576,7 +715,7 @@ export default function Page() {
               className="hidden items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white md:flex"
               style={{ color: C.muted }}
             >
-              XEM TẤT CẢ <ArrowRight size={13} />
+              {T.viewAll[lang]} <ArrowRight size={13} />
             </a>
           </div>
 
@@ -595,7 +734,7 @@ export default function Page() {
                 >
                   <img
                     src={cat.img}
-                    alt={cat.label}
+                    alt={cat.label[lang]}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
                   />
                   <div
@@ -623,33 +762,35 @@ export default function Page() {
                         color: "#000",
                       }}
                     >
-                      {cat.tag}
+                      {cat.tag[lang]}
                     </div>
                   )}
                   <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <p
-                      className="mb-0.5 text-[9px] font-semibold tracking-[0.2em] uppercase"
-                      style={{ color: `${cat.accentColor}cc` }}
-                    >
-                      {cat.sub}
-                    </p>
+                    {cat.sub && (
+                      <p
+                        className="mb-0.5 text-[9px] font-semibold tracking-[0.2em] uppercase"
+                        style={{ color: `${cat.accentColor}cc` }}
+                      >
+                        {cat.sub[lang]}
+                      </p>
+                    )}
                     <h3
                       className={`font-black tracking-tight text-white ${isWide ? "text-3xl" : "text-xl"}`}
                     >
-                      {cat.label}
+                      {cat.label[lang]}
                     </h3>
                     <div className="mt-2 flex items-center justify-between">
                       <span
                         className="text-[11px]"
                         style={{ color: "rgba(255,255,255,0.45)" }}
                       >
-                        {cat.count}
+                        {cat.count[lang]}
                       </span>
                       <span
                         className="flex items-center gap-1 text-[11px] font-black tracking-[0.15em] uppercase opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                         style={{ color: cat.accentColor }}
                       >
-                        MUA NGAY <ArrowRight size={11} />
+                        {T.shopNow[lang]} <ArrowRight size={11} />
                       </span>
                     </div>
                   </div>
@@ -679,19 +820,19 @@ export default function Page() {
                 className="mb-4 text-[12px] font-black tracking-[0.45em] uppercase"
                 style={{ color: C.accent }}
               >
-                CÂU CHUYỆN CỦA CHÚNG TÔI
+                {T.ourStoryEyebrow[lang]}
               </p>
               <h2 className="flex flex-col gap-3 text-5xl font-black tracking-[-0.025em] text-white md:text-6xl lg:text-7xl">
-                <span>CHÚNG TÔI</span>
+                <span>{T.storyLine1[lang]}</span>
                 <span
                   style={{
                     color: C.accent,
                     textShadow: `0 0 60px ${C.accent}30`,
                   }}
                 >
-                  TẠO RA
+                  {T.storyLine2[lang]}
                 </span>
-                <span>KHÁC BIỆT.</span>
+                <span>{T.storyLine3[lang]}</span>
               </h2>
               <div
                 className="my-8 h-[1px] w-14"
@@ -701,23 +842,19 @@ export default function Page() {
                 className="mb-5 max-w-md text-[17px] leading-[1.75]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
-                Thành lập bởi các vận động viên, dành cho các vận động viên.
-                Chúng tôi bắt đầu PULSEGEAR.CLUB vì không thể tìm được trang
-                phục theo kịp với mình.
+                {T.storyP1[lang]}
               </p>
               <p
                 className="max-w-md text-[15px] leading-[1.75]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
-                Mỗi sản phẩm được thiết kế với một ám ảnh duy nhất: hiệu suất.
-                Từ phòng lab đến sàn tập, từ ý tưởng đến tủ quần áo của bạn —
-                chúng tôi không bao giờ chấp nhận mức trung bình.
+                {T.storyP2[lang]}
               </p>
               <a
                 href={VOID}
                 className="group mt-10 inline-flex items-center gap-3 text-[12px] font-black tracking-[0.25em] uppercase text-white"
               >
-                ĐỌC CÂU CHUYỆN{" "}
+                {T.readStory[lang]}{" "}
                 <ArrowRight
                   size={14}
                   className="transition-transform group-hover:translate-x-1"
@@ -748,19 +885,19 @@ export default function Page() {
                     className="text-[10px] font-black tracking-[0.35em] uppercase"
                     style={{ color: C.accent }}
                   >
-                    ĐƯỢC THIẾT KẾ VÌ HIỆU SUẤT
+                    {T.engineeredFor[lang]}
                   </p>
                   <h3 className="mt-1 text-2xl font-black text-white">
-                    TẬP LUYỆN NHƯ PRO
+                    {T.trainLikePro[lang]}
                   </h3>
                 </div>
               </div>
 
               {[
-                { val: "2.5M+", label: "Vận động viên", pos: "-left-6 top-6" },
+                { val: "2.5M+", label: T.statAthletes, pos: "-left-6 top-6" },
                 {
                   val: "98%",
-                  label: "Khách hài lòng",
+                  label: T.statHappy,
                   pos: "-right-6 bottom-14",
                 },
               ].map((s, i) => (
@@ -783,7 +920,7 @@ export default function Page() {
                     className="text-[10px] font-semibold tracking-wider uppercase"
                     style={{ color: C.muted }}
                   >
-                    {s.label}
+                    {s.label[lang]}
                   </div>
                 </div>
               ))}
@@ -809,10 +946,11 @@ export default function Page() {
                 className="mb-3 text-[12px] font-black tracking-[0.4em] uppercase"
                 style={{ color: C.accent }}
               >
-                BỘ SƯU TẬP
+                {T.dropsEyebrow[lang]}
               </p>
               <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-                BỘ SƯU TẬP <span style={{ color: C.accent }}>MỚI NHẤT</span>
+                {T.dropsTitle1[lang]}{" "}
+                <span style={{ color: C.accent }}>{T.dropsTitle2[lang]}</span>
               </h2>
             </div>
             <a
@@ -820,7 +958,7 @@ export default function Page() {
               className="hidden items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white md:flex"
               style={{ color: C.muted }}
             >
-              XEM TẤT CẢ <ArrowRight size={13} />
+              {T.viewAll[lang]} <ArrowRight size={13} />
             </a>
           </div>
 
@@ -853,7 +991,7 @@ export default function Page() {
                       border: `1px solid ${drop.glow}45`,
                     }}
                   >
-                    {drop.badge}
+                    {drop.badge[lang]}
                   </div> */}
                 </div>
                 <div
@@ -868,7 +1006,7 @@ export default function Page() {
                     className="mb-1 text-[10px] font-semibold tracking-[0.2em] uppercase"
                     style={{ color: `${drop.glow}99` }}
                   >
-                    {drop.tag}
+                    {drop.tag[lang]}
                   </p>
                   <h3
                     className={`font-black leading-tight tracking-[-0.02em] text-white ${i === 0 ? "text-2xl" : "text-xl"}`}
@@ -879,13 +1017,13 @@ export default function Page() {
                     className="mt-2 text-sm leading-relaxed"
                     style={{ color: C.muted }}
                   >
-                    {drop.sub}
+                    {drop.sub[lang]}
                   </p>
                   <div
                     className="mt-5 flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-all group-hover:gap-3"
                     style={{ color: drop.glow }}
                   >
-                    MUA NGAY <ArrowRight size={12} />
+                    {T.shopNow[lang]} <ArrowRight size={12} />
                   </div>
                 </div>
               </a>
@@ -913,11 +1051,11 @@ export default function Page() {
               className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
-              ĐIỀU LÀM PULSEGEAR KHÁC BIỆT
+              {T.featuresEyebrow[lang]}
             </p>
             <h2 className="text-4xl font-black tracking-[-0.025em] text-white md:text-5xl">
-              ĐƯỢC TẠO RA ĐỂ{" "}
-              <span style={{ color: C.accent }}>CHIẾN THẮNG</span>
+              {T.featuresTitle1[lang]}{" "}
+              <span style={{ color: C.accent }}>{T.featuresTitle2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -951,7 +1089,7 @@ export default function Page() {
                   {f.icon}
                 </div>
                 <h3 className="mb-3 text-sm font-black tracking-[0.08em] text-white">
-                  {f.title}
+                  {f.title[lang]}
                 </h3>
                 <div
                   className="mb-4 h-[1px] w-8 transition-all duration-300 group-hover:w-14"
@@ -961,7 +1099,7 @@ export default function Page() {
                   className="text-[15px] leading-relaxed"
                   style={{ color: C.muted }}
                 >
-                  {f.desc}
+                  {f.desc[lang]}
                 </p>
               </div>
             ))}
@@ -1007,7 +1145,7 @@ export default function Page() {
                   className="text-[11px] font-bold tracking-[0.2em] uppercase"
                   style={{ color: C.muted }}
                 >
-                  {s.label}
+                  {s.label[lang]}
                 </span>
               </div>
             ))}
@@ -1034,18 +1172,18 @@ export default function Page() {
             {[
               {
                 icon: <Truck size={20} />,
-                title: "MIỄN PHÍ VẬN CHUYỂN",
-                sub: "Đơn hàng trên 2 triệu toàn quốc",
+                title: T.serviceShippingTitle,
+                sub: T.serviceShippingSub,
               },
               {
                 icon: <RotateCcw size={20} />,
-                title: "ĐỔI TRẢ 30 NGÀY",
-                sub: "Đổi trả dễ dàng, không cần lý do",
+                title: T.serviceReturnsTitle,
+                sub: T.serviceReturnsSub,
               },
               {
                 icon: <Shield size={20} />,
-                title: "CAM KẾT CHẤT LƯỢNG",
-                sub: "Bền bỉ hoặc hoàn tiền 100%",
+                title: T.serviceQualityTitle,
+                sub: T.serviceQualitySub,
               },
             ].map((item, i) => (
               <div
@@ -1056,10 +1194,10 @@ export default function Page() {
                 <div style={{ color: C.accent }}>{item.icon}</div>
                 <div>
                   <p className="text-[11px] font-black tracking-[0.2em] text-white">
-                    {item.title}
+                    {item.title[lang]}
                   </p>
                   <p className="mt-0.5 text-[12px]" style={{ color: C.muted }}>
-                    {item.sub}
+                    {item.sub[lang]}
                   </p>
                 </div>
               </div>
@@ -1080,11 +1218,11 @@ export default function Page() {
               className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
-              CỘNG ĐỒNG YÊU THÍCH
+              {T.reviewsEyebrow[lang]}
             </p>
             <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-              VẬN ĐỘNG VIÊN THẬT.{" "}
-              <span style={{ color: C.accent }}>KẾT QUẢ THẬT.</span>
+              {T.reviewsTitle1[lang]}{" "}
+              <span style={{ color: C.accent }}>{T.reviewsTitle2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -1121,7 +1259,7 @@ export default function Page() {
                   className="text-[14px] leading-relaxed"
                   style={{ color: "rgba(255,255,255,0.7)" }}
                 >
-                  {r.text}
+                  {r.text[lang]}
                 </p>
                 <div
                   className="my-5 h-[1px] w-full"
@@ -1169,7 +1307,8 @@ export default function Page() {
                 #PULSEGEARCLUB
               </p>
               <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-                THAM GIA <span style={{ color: C.accent }}>PHONG TRÀO</span>
+                {T.communityJoin1[lang]}{" "}
+                <span style={{ color: C.accent }}>{T.communityJoin2[lang]}</span>
               </h2>
             </div>
             {/* <a
@@ -1186,32 +1325,32 @@ export default function Page() {
               {
                 img: UNS("1571019614242-c5c5dee9f50b", 600),
                 glow: C.accent,
-                label: "TẬP LUYỆN",
+                label: TILE_LABELS[0],
               },
               {
                 img: UNS("1548690312-e3b507d8c110", 600),
                 glow: "#A855F7",
-                label: "LIỀN MẠCH",
+                label: TILE_LABELS[1],
               },
               {
                 img: UNS("1552674605-db6ffd4facb5", 600),
                 glow: "#00C8FF",
-                label: "CHẠY BỘ",
+                label: TILE_LABELS[2],
               },
               {
                 img: UNS("1539109136881-3be0616acf4b", 600),
                 glow: "#F59E0B",
-                label: "ÁO KHOÁC",
+                label: TILE_LABELS[3],
               },
               {
                 img: UNS("1583454110551-21f2fa2afe61", 600),
                 glow: "#22C55E",
-                label: "CỬ TẠ",
+                label: TILE_LABELS[4],
               },
               {
                 img: UNS("1576678927484-cc907957088c", 600),
                 glow: C.accent,
-                label: "PHỤC HỒI",
+                label: TILE_LABELS[5],
               },
             ].map((tile, i) => (
               <div
@@ -1220,7 +1359,7 @@ export default function Page() {
               >
                 <img
                   src={tile.img}
-                  alt={tile.label}
+                  alt={tile.label[lang]}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
                 />
                 <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/70" />
@@ -1235,15 +1374,15 @@ export default function Page() {
                     className="text-[12px] font-black tracking-[0.35em] uppercase"
                     style={{ color: tile.glow }}
                   >
-                    {tile.label}
+                    {tile.label[lang]}
                   </span>
                 </div>
-                {/* <div
+                <div
                   className="absolute right-2 top-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
                   <IgIcon size={13} />
-                </div> */}
+                </div>
               </div>
             ))}
           </div>

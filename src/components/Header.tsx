@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ChevronDown, Menu } from "lucide-react";
+import { useI18nStore, type Lang } from "@/lib/i18n/store";
 
 /* =========================================================
    DESIGN TOKENS
@@ -18,21 +19,32 @@ const TEXT_MUTED = "rgba(255,255,255,0.5)";
    NAV ITEMS
    ========================================================= */
 const NAV_ITEMS = [
-  { label: "Đồ Nam", href: "#" },
-  { label: "Đồ Nữ", href: "#" },
-  { label: "Liền Mạch", href: "#" },
-  { label: "Áo Khoác", href: "#" },
-  { label: "Quần Short", href: "#" },
-  { label: "Phụ Kiện", href: "#" },
-  { label: "Giảm Giá", href: "#" },
-  { label: "Tin Tức", href: "#" },
+  { vi: "Đồ Nam", en: "Men", href: "#" },
+  { vi: "Đồ Nữ", en: "Women", href: "#" },
+  { vi: "Liền Mạch", en: "Seamless", href: "#" },
+  { vi: "Áo Khoác", en: "Jackets", href: "#" },
+  { vi: "Quần Short", en: "Shorts", href: "#" },
+  { vi: "Phụ Kiện", en: "Accessories", href: "#" },
+  { vi: "Giảm Giá", en: "Sale", href: "#" },
+  { vi: "Tin Tức", en: "News", href: "#" },
 ];
+
+/* =========================================================
+   COPY
+   ========================================================= */
+const TXT = {
+  aboutUs: { vi: "Về Chúng Tôi", en: "About Us" },
+  contact: { vi: "Liên Hệ", en: "Contact" },
+  searchPlaceholder: { vi: "Tìm kiếm...", en: "Search gear..." },
+  searchPlaceholderShort: { vi: "Tìm kiếm...", en: "Search..." },
+  close: { vi: "Đóng", en: "Close" },
+  home: { vi: "Trang Chủ", en: "Home" },
+  language: { vi: "Ngôn Ngữ", en: "Language" },
+};
 
 /* =========================================================
    LANGS
    ========================================================= */
-type Lang = "vi" | "en";
-
 const LANGS: Record<Lang, { label: string; flag: string; long: string }> = {
   en: { label: "EN", flag: "/images/language/en.png", long: "English" },
   vi: { label: "VI", flag: "/images/language/vi.png", long: "Tiếng Việt" },
@@ -47,7 +59,8 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [lang, setLang] = useState<Lang>("vi");
+  const lang = useI18nStore((s) => s.lang);
+  const setLang = useI18nStore((s) => s.setLang);
   const [isLangOpen, setLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement | null>(null);
   const langBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -114,11 +127,14 @@ const Header: React.FC = () => {
               className="flex items-center gap-6 text-[11px] font-semibold tracking-[0.15em] uppercase"
               style={{ color: TEXT_MUTED }}
             >
-              <Link href="#" className="transition-colors hover:text-white">
-                Về Chúng Tôi
+              <Link
+                href="/gioi-thieu"
+                className="transition-colors hover:text-white"
+              >
+                {TXT.aboutUs[lang]}
               </Link>
               <Link href="#" className="transition-colors hover:text-white">
-                Liên Hệ
+                {TXT.contact[lang]}
               </Link>
             </div>
 
@@ -205,7 +221,7 @@ const Header: React.FC = () => {
               >
                 <input
                   name="q"
-                  placeholder={lang === "vi" ? "Tìm kiếm..." : "Search gear..."}
+                  placeholder={TXT.searchPlaceholder[lang]}
                   className="h-10 w-full bg-transparent px-4 text-[13px] text-white placeholder-white/20 outline-none"
                 />
                 <button
@@ -251,12 +267,12 @@ const Header: React.FC = () => {
 
                 <ul className="flex h-full flex-wrap items-center gap-x-1 gap-y-0 py-2">
                   {NAV_ITEMS.map((item) => (
-                    <li key={item.label} className="h-full">
+                    <li key={item.en} className="h-full">
                       <Link
                         href={item.href}
                         className="flex h-full items-center px-3 text-[11px] font-black tracking-[0.18em] uppercase text-white/50 transition-colors hover:text-white"
                       >
-                        {item.label}
+                        {item[lang]}
                       </Link>
                     </li>
                   ))}
@@ -341,7 +357,7 @@ const Header: React.FC = () => {
                     <input
                       ref={searchInputRef}
                       name="q"
-                      placeholder={lang === "vi" ? "Tìm kiếm..." : "Search..."}
+                      placeholder={TXT.searchPlaceholderShort[lang]}
                       className="h-10 w-full bg-transparent px-4 text-sm text-white placeholder-white/20 outline-none"
                     />
                     <button
@@ -358,7 +374,7 @@ const Header: React.FC = () => {
                     className="text-xs font-semibold tracking-widest uppercase transition-colors hover:text-white"
                     style={{ color: TEXT_MUTED }}
                   >
-                    Đóng
+                    {TXT.close[lang]}
                   </button>
                 </form>
               </motion.div>
@@ -413,17 +429,33 @@ const Header: React.FC = () => {
               className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
               style={{ borderColor: BORDER }}
             >
-              Trang Chủ
+              {TXT.home[lang]}
+            </button>
+
+            <button
+              onClick={() => handleRouteChange("/gioi-thieu")}
+              className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
+              style={{ borderColor: BORDER }}
+            >
+              {TXT.aboutUs[lang]}
+            </button>
+
+            <button
+              onClick={() => handleRouteChange("#")}
+              className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
+              style={{ borderColor: BORDER }}
+            >
+              {TXT.contact[lang]}
             </button>
 
             {NAV_ITEMS.map((item) => (
               <button
-                key={item.label}
+                key={item.en}
                 onClick={() => handleRouteChange(item.href)}
                 className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
                 style={{ borderColor: BORDER }}
               >
-                {item.label}
+                {item[lang]}
               </button>
             ))}
           </nav>
@@ -434,7 +466,7 @@ const Header: React.FC = () => {
               className="mb-3 text-[10px] font-black tracking-[0.3em] uppercase"
               style={{ color: "rgba(255,255,255,0.2)" }}
             >
-              Language
+              {TXT.language[lang]}
             </div>
             <div className="flex gap-2">
               {(["vi", "en"] as Lang[]).map((l) => (

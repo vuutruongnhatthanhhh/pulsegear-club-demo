@@ -139,7 +139,7 @@ const Footer = () => {
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4879.504307635821!2d106.6964218!3d10.7393764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f7cd686d175%3A0x7b325abcaf954a51!2sC%C3%B4ng%20ty%20Lu%E1%BA%ADt%20TNHH%20DAI%20%26%20Partners!5e1!3m2!1sen!2s!4v1767084073563!5m2!1sen!2s";
 
   const staticLinks = [
-    { href: "#", vi: "Giới thiệu", en: "About Us" },
+    { href: "/gioi-thieu", vi: "Giới thiệu", en: "About Us" },
     { href: "#", vi: "Liên hệ", en: "Contact" },
     { href: "#", vi: "Tin tức", en: "News & Updates" },
   ];
@@ -190,11 +190,20 @@ const Footer = () => {
                 PULSEGEAR.CLUB
               </div>
               <h2 className="text-3xl font-black leading-tight tracking-[-0.02em] text-white md:text-4xl">
-                THAM GIA <span style={{ color: ACCENT }}>PHONG TRÀO</span>
+                {L === "vi" ? (
+                  <>
+                    THAM GIA <span style={{ color: ACCENT }}>PHONG TRÀO</span>
+                  </>
+                ) : (
+                  <>
+                    JOIN THE <span style={{ color: ACCENT }}>MOVEMENT</span>
+                  </>
+                )}
               </h2>
-              <p className="mt-2 text-sm" style={{ color: TEXT_MUTED }}>
-                Nhận thông tin sớm nhất về hàng mới, ưu đãi độc quyền &amp; mẹo
-                tập luyện.
+              <p className="mt-2 text-[17px]" style={{ color: TEXT_MUTED }}>
+                {L === "vi"
+                  ? "Nhận thông tin sớm nhất về hàng mới, ưu đãi độc quyền & mẹo tập luyện."
+                  : "Get early access to new drops, exclusive offers & training tips."}
               </p>
             </div>
 
@@ -203,7 +212,7 @@ const Footer = () => {
               className="group flex items-center gap-3 px-8 py-4 text-sm font-black tracking-[0.2em] uppercase text-black transition-all hover:scale-[1.02] shrink-0"
               style={{ backgroundColor: ACCENT }}
             >
-              Liên hệ ngay
+              {L === "vi" ? "Liên hệ ngay" : "Contact Us"}
               <ArrowRight
                 size={14}
                 className="transition-transform group-hover:translate-x-1"
@@ -219,7 +228,11 @@ const Footer = () => {
           {/* Col 1: Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="mb-6 flex items-center gap-3">
-              <img src="/logo.png" alt="Pulsegear.Club" className="h-12 w-12 object-contain" />
+              <img
+                src="/logo.png"
+                alt="Pulsegear.Club"
+                className="h-12 w-12 object-contain"
+              />
               <div className="leading-tight">
                 <div className="text-base font-black tracking-[0.06em] text-white">
                   PULSEGEAR
@@ -278,7 +291,7 @@ const Footer = () => {
             </FooterHeading>
             <ul className="space-y-3">
               {staticLinks.map((l) => (
-                <FooterLink key={l.href} href={l.href}>
+                <FooterLink key={l.en} href={l.href}>
                   {L === "vi" ? l.vi : l.en}
                 </FooterLink>
               ))}
