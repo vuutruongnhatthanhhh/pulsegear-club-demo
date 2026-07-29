@@ -140,7 +140,7 @@ const Footer = () => {
 
   const staticLinks = [
     { href: "/gioi-thieu", vi: "Giới thiệu", en: "About Us" },
-    { href: "#", vi: "Liên hệ", en: "Contact" },
+    { href: "/lien-he", vi: "Liên hệ", en: "Contact" },
     { href: "#", vi: "Tin tức", en: "News & Updates" },
   ];
 
@@ -208,7 +208,7 @@ const Footer = () => {
             </div>
 
             <Link
-              href="#"
+              href="/lien-he"
               className="group flex items-center gap-3 px-8 py-4 text-sm font-black tracking-[0.2em] uppercase text-black transition-all hover:scale-[1.02] shrink-0"
               style={{ backgroundColor: ACCENT }}
             >

@@ -133,7 +133,10 @@ const Header: React.FC = () => {
               >
                 {TXT.aboutUs[lang]}
               </Link>
-              <Link href="#" className="transition-colors hover:text-white">
+              <Link
+                href="/lien-he"
+                className="transition-colors hover:text-white"
+              >
                 {TXT.contact[lang]}
               </Link>
             </div>
@@ -441,7 +444,7 @@ const Header: React.FC = () => {
             </button>
 
             <button
-              onClick={() => handleRouteChange("#")}
+              onClick={() => handleRouteChange("/lien-he")}
               className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
               style={{ borderColor: BORDER }}
             >

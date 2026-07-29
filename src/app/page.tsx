@@ -75,10 +75,6 @@ const C = {
   border: "rgba(255,255,255,0.07)",
 };
 
-/* ─── UNSPLASH helper ─── */
-const UNS = (id: string, w = 1920, q = 80) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=${q}`;
-
 /* ─── no-jump href ─── */
 const VOID = "javascript:void(0)";
 
@@ -189,7 +185,7 @@ const SLIDES = [
     cta2: { vi: "MUA ĐỒ NỮ", en: "SHOP WOMEN" },
     glow: "#FF3C00",
     tag: { vi: "MỚI VỀ", en: "NEW IN" },
-    bg: UNS("1534438327276-14e5300c3a48"),
+    bg: "/images/home/hero-1.jpg",
   },
   {
     eyebrow: { vi: "SEAMLESS PRO V2", en: "SEAMLESS PRO V2" },
@@ -206,7 +202,7 @@ const SLIDES = [
     cta2: { vi: "XEM LOOKBOOK", en: "VIEW LOOKBOOK" },
     glow: "#00C8FF",
     tag: { vi: "BÁN CHẠY NHẤT", en: "BEST SELLER" },
-    bg: UNS("1571019614242-c5c5dee9f50b"),
+    bg: "/images/home/hero-2.jpg",
   },
   {
     eyebrow: { vi: "BỘ SƯU TẬP PHỤ NỮ", en: "WOMEN'S COLLECTION" },
@@ -223,7 +219,7 @@ const SLIDES = [
     cta2: { vi: "KHÁM PHÁ", en: "EXPLORE" },
     glow: "#A855F7",
     tag: { vi: "XU HƯỚNG", en: "TRENDING" },
-    bg: UNS("1518611012118-696072aa579a"),
+    bg: "/images/home/hero-3.jpg",
   },
 ];
 
@@ -235,7 +231,7 @@ const CATEGORIES = [
     count: { vi: "120+ sản phẩm", en: "120+ products" },
     accentColor: "#FF3C00",
     tag: { vi: "MỚI VỀ", en: "NEW IN" },
-    img: UNS("1583454110551-21f2fa2afe61", 900),
+    img: "/images/home/category-men.jpg",
   },
   {
     id: 2,
@@ -244,7 +240,7 @@ const CATEGORIES = [
     count: { vi: "140+ sản phẩm", en: "140+ products" },
     accentColor: "#A855F7",
     tag: { vi: "XU HƯỚNG", en: "TRENDING" },
-    img: UNS("1571019614242-c5c5dee9f50b", 900),
+    img: "/images/home/hero-2.jpg",
   },
   {
     id: 3,
@@ -253,7 +249,7 @@ const CATEGORIES = [
     count: { vi: "60+ sản phẩm", en: "60+ products" },
     accentColor: "#00C8FF",
     tag: { vi: "BÁN CHẠY", en: "BEST SELLER" },
-    img: UNS("1548690312-e3b507d8c110", 900),
+    img: "/images/home/category-seamless.jpg",
   },
   {
     id: 4,
@@ -262,7 +258,7 @@ const CATEGORIES = [
     count: { vi: "40+ sản phẩm", en: "40+ products" },
     accentColor: "#F59E0B",
     tag: { vi: "MỚI", en: "NEW" },
-    img: UNS("1539109136881-3be0616acf4b", 900),
+    img: "/images/home/category-jackets.jpg",
   },
   {
     id: 5,
@@ -271,7 +267,7 @@ const CATEGORIES = [
     count: { vi: "80+ sản phẩm", en: "80+ products" },
     accentColor: "#22C55E",
     tag: null,
-    img: UNS("1552674605-db6ffd4facb5", 900),
+    img: "/images/home/category-accessories.jpg",
   },
   {
     id: 6,
@@ -280,7 +276,7 @@ const CATEGORIES = [
     count: { vi: "200+ sản phẩm", en: "200+ products" },
     accentColor: "#FF3C00",
     tag: { vi: "ĐẾN -50%", en: "UP TO -50%" },
-    img: UNS("1571019613454-1cb2f99b2d8b", 900),
+    img: "/images/home/category-sale.jpg",
   },
 ];
 
@@ -295,7 +291,7 @@ const DROPS = [
     },
     tag: { vi: "Nam & Nữ", en: "Men & Women" },
     glow: "#FF3C00",
-    img: UNS("1576678927484-cc907957088c", 900),
+    img: "/images/home/drop-apex.jpg",
   },
   {
     id: 2,
@@ -307,7 +303,7 @@ const DROPS = [
     },
     tag: { vi: "Bộ sưu tập Nữ", en: "Women's Collection" },
     glow: "#A855F7",
-    img: UNS("1552674605-db6ffd4facb5", 900),
+    img: "/images/home/category-accessories.jpg",
   },
   {
     id: 3,
@@ -319,7 +315,7 @@ const DROPS = [
     },
     tag: { vi: "Dòng đặc trưng", en: "Signature Line" },
     glow: "#00C8FF",
-    img: UNS("1579758629938-03607ccdbaba", 900),
+    img: "/images/home/drop-vital-seamless.jpg",
   },
 ];
 
@@ -869,7 +865,7 @@ export default function Page() {
                 style={{ border: `1px solid ${C.border}` }}
               >
                 <img
-                  src={UNS("1517836357463-d25dfeac3438", 1200)}
+                  src="/images/home/story.jpg"
                   alt="PULSEGEAR Vận động viên"
                   className="aspect-[4/3] w-full object-cover"
                 />
@@ -1323,32 +1319,32 @@ export default function Page() {
           <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
             {[
               {
-                img: UNS("1571019614242-c5c5dee9f50b", 600),
+                img: "/images/home/hero-2.jpg",
                 glow: C.accent,
                 label: TILE_LABELS[0],
               },
               {
-                img: UNS("1548690312-e3b507d8c110", 600),
+                img: "/images/home/category-seamless.jpg",
                 glow: "#A855F7",
                 label: TILE_LABELS[1],
               },
               {
-                img: UNS("1552674605-db6ffd4facb5", 600),
+                img: "/images/home/category-accessories.jpg",
                 glow: "#00C8FF",
                 label: TILE_LABELS[2],
               },
               {
-                img: UNS("1539109136881-3be0616acf4b", 600),
+                img: "/images/home/category-jackets.jpg",
                 glow: "#F59E0B",
                 label: TILE_LABELS[3],
               },
               {
-                img: UNS("1583454110551-21f2fa2afe61", 600),
+                img: "/images/home/category-men.jpg",
                 glow: "#22C55E",
                 label: TILE_LABELS[4],
               },
               {
-                img: UNS("1576678927484-cc907957088c", 600),
+                img: "/images/home/drop-apex.jpg",
                 glow: C.accent,
                 label: TILE_LABELS[5],
               },

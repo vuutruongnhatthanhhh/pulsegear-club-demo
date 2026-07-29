@@ -24,9 +24,6 @@ const C = {
   border: "rgba(255,255,255,0.07)",
 };
 
-const UNS = (id: string, w = 1600, q = 80) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=${q}`;
-
 const VOID = "javascript:void(0)";
 
 function Noise({ op = 0.03 }: { op?: number }) {
@@ -193,22 +190,22 @@ const TEAM = [
   {
     name: "Đăng Khoa",
     role: { vi: "Nhà Sáng Lập & CEO", en: "Founder & CEO" },
-    img: UNS("1633332755192-727a05c4013d", 600),
+    img: "/images/about/team-1.jpg",
   },
   {
     name: "Linh Chi",
     role: { vi: "Trưởng Phòng Thiết Kế", en: "Head of Design" },
-    img: UNS("1580489944761-15a19d654956", 600),
+    img: "/images/about/team-2.jpg",
   },
   {
     name: "Quang Huy",
     role: { vi: "Trưởng Phòng Sản Phẩm", en: "Head of Product" },
-    img: UNS("1500648767791-00dcc994a43e", 600),
+    img: "/images/about/team-3.jpg",
   },
   {
     name: "Bảo Trân",
     role: { vi: "Quản Lý Cộng Đồng", en: "Community Lead" },
-    img: UNS("1544005313-94ddf0286df2", 600),
+    img: "/images/about/team-4.jpg",
   },
 ];
 
@@ -235,7 +232,7 @@ export default function AboutPage() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(${UNS("1571019614242-c5c5dee9f50b")})`,
+            backgroundImage: `url(/images/about/hero.jpg)`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -313,7 +310,7 @@ export default function AboutPage() {
                 style={{ border: `1px solid ${C.border}` }}
               >
                 <img
-                  src={UNS("1517836357463-d25dfeac3438", 1200)}
+                  src="/images/about/story.jpg"
                   alt="PULSEGEAR founder"
                   className="aspect-[4/5] w-full object-cover"
                 />
@@ -719,7 +716,7 @@ export default function AboutPage() {
                   <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
                 </button>
               </Link>
-              <a href={VOID}>
+              <Link href="/lien-he">
                 <button
                   className="group flex items-center gap-2 px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-white/70 transition-all hover:text-white"
                   style={{ border: "1px solid rgba(255,255,255,0.15)" }}
@@ -730,7 +727,7 @@ export default function AboutPage() {
                     className="transition-transform group-hover:translate-x-1"
                   />
                 </button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
