@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ChevronDown, Menu, Zap } from "lucide-react";
+import { Search, X, ChevronDown, Menu } from "lucide-react";
 
 /* =========================================================
    DESIGN TOKENS
@@ -101,7 +101,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="w-full">
+    <header className="w-full" style={{ backgroundColor: BG_HEADER }}>
       {/* ====== DESKTOP (>=1141px) ====== */}
       <div className="hidden min-[1141px]:block">
         {/* Top utility bar */}
@@ -177,21 +177,16 @@ const Header: React.FC = () => {
           className="w-full border-b"
           style={{ backgroundColor: BG_HEADER, borderColor: BORDER }}
         >
-          <div className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-5">
+          <div className="mx-auto flex max-w-7xl items-center gap-8 px-6 py-2">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 shrink-0">
-              <div
-                className="flex h-9 w-9 items-center justify-center"
-                style={{ backgroundColor: ACCENT }}
-              >
-                <Zap size={18} className="text-black" fill="black" />
-              </div>
+              <img src="/logo.png" alt="Pulsegear.Club" className="h-20 w-20 object-contain" />
               <div className="leading-tight">
-                <div className="text-sm font-black tracking-[0.08em] text-white">
+                <div className="text-lg font-black tracking-[0.08em] text-white">
                   PULSEGEAR
                 </div>
                 <div
-                  className="text-[10px] font-bold tracking-[0.3em] uppercase"
+                  className="text-xs font-bold tracking-[0.3em] uppercase"
                   style={{ color: ACCENT }}
                 >
                   .CLUB
@@ -234,33 +229,32 @@ const Header: React.FC = () => {
               isScrolled ? "fixed top-0 left-0 right-0" : "relative",
               "z-[9999] w-full border-b",
             ].join(" ")}
-            style={{ backgroundColor: BG_HEADER, borderColor: BORDER }}
+            style={{
+              backgroundColor: BG_HEADER,
+              borderColor: BORDER,
+              height: isScrolled ? 48 : undefined,
+            }}
           >
-            <div className="mx-auto max-w-7xl px-6">
-              <nav className="relative flex w-full items-center">
+            <div className="mx-auto h-full max-w-7xl px-6">
+              <nav className="relative flex h-full w-full items-center">
                 {isScrolled && (
                   <Link
                     href="/"
                     className="mr-8 flex items-center gap-2 shrink-0"
                   >
-                    <div
-                      className="flex h-7 w-7 items-center justify-center"
-                      style={{ backgroundColor: ACCENT }}
-                    >
-                      <Zap size={13} className="text-black" fill="black" />
-                    </div>
-                    <span className="text-xs font-black tracking-[0.1em] text-white">
+                    <img src="/logo.png" alt="Pulsegear.Club" className="h-11 w-11 object-contain" />
+                    <span className="text-sm font-black tracking-[0.1em] text-white">
                       PULSEGEAR.CLUB
                     </span>
                   </Link>
                 )}
 
-                <ul className="flex flex-wrap items-center gap-x-1 gap-y-0 py-2">
+                <ul className="flex h-full flex-wrap items-center gap-x-1 gap-y-0 py-2">
                   {NAV_ITEMS.map((item) => (
-                    <li key={item.label}>
+                    <li key={item.label} className="h-full">
                       <Link
                         href={item.href}
-                        className="flex items-center px-3 py-3 text-[11px] font-black tracking-[0.18em] uppercase text-white/50 transition-colors hover:text-white"
+                        className="flex h-full items-center px-3 text-[11px] font-black tracking-[0.18em] uppercase text-white/50 transition-colors hover:text-white"
                       >
                         {item.label}
                       </Link>
@@ -284,18 +278,13 @@ const Header: React.FC = () => {
           <div className="flex h-[60px] items-center justify-between px-5">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5">
-              <div
-                className="flex h-8 w-8 items-center justify-center"
-                style={{ backgroundColor: ACCENT }}
-              >
-                <Zap size={16} className="text-black" fill="black" />
-              </div>
+              <img src="/logo.png" alt="Pulsegear.Club" className="h-14 w-14 object-contain" />
               <div className="leading-tight">
-                <div className="text-xs font-black tracking-[0.08em] text-white">
+                <div className="text-sm font-black tracking-[0.08em] text-white">
                   PULSEGEAR
                 </div>
                 <div
-                  className="text-[9px] font-bold tracking-[0.3em]"
+                  className="text-[11px] font-bold tracking-[0.3em]"
                   style={{ color: ACCENT }}
                 >
                   .CLUB
@@ -398,17 +387,12 @@ const Header: React.FC = () => {
       >
         {/* Drawer header */}
         <div
-          className="flex items-center justify-between px-5 py-4 border-b"
+          className="flex items-center justify-between px-5 py-3 border-b"
           style={{ borderColor: BORDER }}
         >
           <div className="flex items-center gap-2.5">
-            <div
-              className="flex h-7 w-7 items-center justify-center"
-              style={{ backgroundColor: ACCENT }}
-            >
-              <Zap size={13} className="text-black" fill="black" />
-            </div>
-            <span className="text-xs font-black tracking-[0.1em] text-white">
+            <img src="/logo.png" alt="Pulsegear.Club" className="h-11 w-11 object-contain" />
+            <span className="text-sm font-black tracking-[0.1em] text-white">
               PULSEGEAR.CLUB
             </span>
           </div>

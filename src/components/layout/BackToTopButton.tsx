@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { ChevronUp } from "lucide-react";
 
-const PRIMARY = "#06446A";
-const ACCENT = "#E7BF64";
+const PRIMARY = "#0A0A0A";
+const ACCENT = "#FF3C00";
 
 export default function BackToTopButton() {
   const [visible, setVisible] = useState(false);
@@ -36,7 +36,7 @@ export default function BackToTopButton() {
       <div
         className="flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition-all duration-300 group-hover:-translate-y-1"
         style={{
-          background: `linear-gradient(135deg, ${PRIMARY} 0%, #0A5A88 100%)`,
+          background: `linear-gradient(135deg, #1A1A1A 0%, ${PRIMARY} 100%)`,
           border: `2px solid ${ACCENT}`,
         }}
       >

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Instagram, Youtube, Facebook, ArrowRight } from "lucide-react";
+import { Instagram, Youtube, Facebook, ArrowRight } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
 import {
   getAllCategoriesService,
@@ -219,12 +219,7 @@ const Footer = () => {
           {/* Col 1: Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="mb-6 flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center"
-                style={{ backgroundColor: ACCENT }}
-              >
-                <Zap size={20} className="text-black" fill="black" />
-              </div>
+              <img src="/logo.png" alt="Pulsegear.Club" className="h-12 w-12 object-contain" />
               <div className="leading-tight">
                 <div className="text-base font-black tracking-[0.06em] text-white">
                   PULSEGEAR

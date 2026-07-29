@@ -82,7 +82,7 @@ export default function RootLayout({
         {/* <ContactBox /> */}
         <Footer />
         {/* <FloatingContactButtons /> */}
-        {/* <BackToTopButton /> */}
+        <BackToTopButton />
       </body>
     </html>
   );

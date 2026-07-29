@@ -401,13 +401,13 @@ export default function Page() {
           </div>
 
           <p
-            className="hero-anim hero-d1 mb-3 text-[11px] font-black tracking-[0.45em] uppercase opacity-0"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            className="hero-anim hero-d1 mb-3 text-[13px] font-black tracking-[0.45em] uppercase opacity-0"
+            style={{ color: slide.glow }}
           >
             {slide.eyebrow}
           </p>
 
-          <h1 className="hero-anim hero-d2 max-w-4xl opacity-0 text-[clamp(2.8rem,7.5vw,7rem)] font-black leading-[1.1] tracking-[-0.02em]">
+          <h1 className="hero-anim hero-d2 max-w-4xl opacity-0 text-[clamp(2rem,4.8vw,4.3rem)] font-black leading-[1.35] tracking-[-0.02em]">
             {slide.headline.map((word, i) =>
               word === slide.accent ? (
                 <span
@@ -434,7 +434,7 @@ export default function Page() {
           />
 
           <p
-            className="hero-anim hero-d3 max-w-md text-[15px] leading-relaxed opacity-0"
+            className="hero-anim hero-d3 max-w-md text-[18px] leading-relaxed opacity-0"
             style={{ color: "rgba(255,255,255,0.55)" }}
           >
             {slide.sub}
@@ -676,7 +676,7 @@ export default function Page() {
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
               <p
-                className="mb-4 text-[10px] font-black tracking-[0.45em] uppercase"
+                className="mb-4 text-[12px] font-black tracking-[0.45em] uppercase"
                 style={{ color: C.accent }}
               >
                 CÂU CHUYỆN CỦA CHÚNG TÔI
@@ -698,7 +698,7 @@ export default function Page() {
                 style={{ backgroundColor: C.accent }}
               />
               <p
-                className="mb-5 max-w-md text-[15px] leading-[1.75]"
+                className="mb-5 max-w-md text-[17px] leading-[1.75]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
                 Thành lập bởi các vận động viên, dành cho các vận động viên.
@@ -806,13 +806,13 @@ export default function Page() {
           <div className="mb-10 flex items-end justify-between">
             <div>
               <p
-                className="mb-2 text-[10px] font-black tracking-[0.4em] uppercase"
+                className="mb-3 text-[12px] font-black tracking-[0.4em] uppercase"
                 style={{ color: C.accent }}
               >
-                HÀNG MỚI VỀ
+                BỘ SƯU TẬP
               </p>
               <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-                SẢN PHẨM <span style={{ color: C.accent }}>MỚI NHẤT</span>
+                BỘ SƯU TẬP <span style={{ color: C.accent }}>MỚI NHẤT</span>
               </h2>
             </div>
             <a
@@ -910,7 +910,7 @@ export default function Page() {
         <div className="relative mx-auto max-w-screen-2xl px-8 py-24 md:px-16">
           <div className="mb-14 text-center">
             <p
-              className="mb-3 text-[10px] font-black tracking-[0.45em] uppercase"
+              className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
               ĐIỀU LÀM PULSEGEAR KHÁC BIỆT
@@ -958,7 +958,7 @@ export default function Page() {
                   style={{ backgroundColor: C.accent }}
                 />
                 <p
-                  className="text-[13px] leading-relaxed"
+                  className="text-[15px] leading-relaxed"
                   style={{ color: C.muted }}
                 >
                   {f.desc}
@@ -1077,7 +1077,7 @@ export default function Page() {
         <div className="relative mx-auto max-w-screen-2xl px-8 py-24 md:px-16">
           <div className="mb-12 text-center">
             <p
-              className="mb-3 text-[10px] font-black tracking-[0.45em] uppercase"
+              className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
               CỘNG ĐỒNG YÊU THÍCH
@@ -1163,7 +1163,7 @@ export default function Page() {
           <div className="mb-10 flex items-end justify-between">
             <div>
               <p
-                className="mb-2 text-[10px] font-black tracking-[0.45em] uppercase"
+                className="mb-3 text-[13px] font-black tracking-[0.45em] uppercase"
                 style={{ color: C.accent }}
               >
                 #PULSEGEARCLUB
@@ -1172,13 +1172,13 @@ export default function Page() {
                 THAM GIA <span style={{ color: C.accent }}>PHONG TRÀO</span>
               </h2>
             </div>
-            <a
+            {/* <a
               href={VOID}
               className="hidden items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white md:flex"
               style={{ color: C.muted }}
             >
               THEO DÕI <IgIcon size={13} />
-            </a>
+            </a> */}
           </div>
 
           <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
@@ -1206,7 +1206,7 @@ export default function Page() {
               {
                 img: UNS("1583454110551-21f2fa2afe61", 600),
                 glow: "#22C55E",
-                label: "GỬ TẠ",
+                label: "CỬ TẠ",
               },
               {
                 img: UNS("1576678927484-cc907957088c", 600),
@@ -1223,7 +1223,7 @@ export default function Page() {
                   alt={tile.label}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
                 />
-                <div className="absolute inset-0 bg-black/40 transition-opacity duration-300 group-hover:bg-black/20" />
+                <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/70" />
                 <div
                   className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   style={{
@@ -1232,18 +1232,18 @@ export default function Page() {
                 />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span
-                    className="text-[9px] font-black tracking-[0.35em] uppercase"
+                    className="text-[12px] font-black tracking-[0.35em] uppercase"
                     style={{ color: tile.glow }}
                   >
                     {tile.label}
                   </span>
                 </div>
-                <div
+                {/* <div
                   className="absolute right-2 top-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
                   <IgIcon size={13} />
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
@@ -1269,7 +1269,7 @@ export default function Page() {
       </section>
 
       {/* ════════ SECTION 11 — NEWSLETTER ════════ */}
-      <section
+      {/* <section
         className="relative w-full overflow-hidden"
         style={{ backgroundColor: C.bg }}
       >
@@ -1324,7 +1324,7 @@ export default function Page() {
             cứ lúc nào.
           </p>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
