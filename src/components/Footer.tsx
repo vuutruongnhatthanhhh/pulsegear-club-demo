@@ -31,6 +31,26 @@ function safeLang(lang: Lang): Lang {
 }
 
 /* =========================================================
+   TIKTOK ICON (lucide-react has no TikTok glyph)
+   ========================================================= */
+function TikTokIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+  );
+}
+
+/* =========================================================
    FOOTER HEADING
    ========================================================= */
 function FooterHeading({ children }: { children: React.ReactNode }) {
@@ -151,13 +171,18 @@ const Footer = () => {
       label: "Facebook",
     },
     {
+      href: config.instagram || "#",
+      icon: <Instagram size={16} />,
+      label: "Instagram",
+    },
+    {
       href: config.youtube || "#",
       icon: <Youtube size={16} />,
       label: "YouTube",
     },
     {
       href: config.tiktok || "#",
-      icon: <Instagram size={16} />,
+      icon: <TikTokIcon size={16} />,
       label: "TikTok",
     },
   ];

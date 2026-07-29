@@ -10,6 +10,7 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import BackToTopButton from "@/components/layout/BackToTopButton";
 import FloatingContactButtons from "@/components/layout/FloatingContactButtons";
+import I18nGate from "@/lib/i18n/I18nGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,13 +77,15 @@ export default function RootLayout({
           }}
         />
 
-        <Header />
-        <Toaster position="top-center" richColors />
-        <main className="flex-grow w-full min-h-screen"> {children}</main>
-        {/* <ContactBox /> */}
-        <Footer />
-        {/* <FloatingContactButtons /> */}
-        <BackToTopButton />
+        <I18nGate>
+          <Header />
+          <Toaster position="top-center" richColors />
+          <main className="flex-grow w-full min-h-screen"> {children}</main>
+          {/* <ContactBox /> */}
+          <Footer />
+          {/* <FloatingContactButtons /> */}
+          <BackToTopButton />
+        </I18nGate>
       </body>
     </html>
   );

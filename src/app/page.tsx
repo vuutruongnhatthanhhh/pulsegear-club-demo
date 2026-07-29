@@ -64,6 +64,20 @@ const YtIcon = ({ size = 18 }: { size?: number }) => (
     />
   </svg>
 );
+const TikTokIcon = ({ size = 18 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 /* ─── TOKENS ─── */
 const C = {
@@ -359,10 +373,16 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "2.5M+", label: { vi: "Thành viên toàn cầu", en: "Global members" } },
+  {
+    value: "2.5M+",
+    label: { vi: "Thành viên toàn cầu", en: "Global members" },
+  },
   { value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
   { value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
-  { value: "45+", label: { vi: "Quốc gia giao hàng", en: "Countries shipped" } },
+  {
+    value: "45+",
+    label: { vi: "Quốc gia giao hàng", en: "Countries shipped" },
+  },
 ];
 
 const REVIEWS = [
@@ -513,7 +533,7 @@ export default function Page() {
           className="pointer-events-none absolute left-6 top-1/2 hidden -translate-y-1/2 -rotate-90 text-[10px] font-black tracking-[0.5em] uppercase lg:block"
           style={{ color: "rgba(255,255,255,0.1)" }}
         >
-          PULSEGEAR · CLUB · SS25
+          PULSEGEAR · CLUB
         </div>
 
         <div
@@ -1304,7 +1324,9 @@ export default function Page() {
               </p>
               <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
                 {T.communityJoin1[lang]}{" "}
-                <span style={{ color: C.accent }}>{T.communityJoin2[lang]}</span>
+                <span style={{ color: C.accent }}>
+                  {T.communityJoin2[lang]}
+                </span>
               </h2>
             </div>
             {/* <a
@@ -1388,6 +1410,7 @@ export default function Page() {
               { icon: <IgIcon size={17} />, label: "@pulsegear.club" },
               { icon: <FbIcon size={17} />, label: "PULSEGEAR" },
               { icon: <YtIcon size={17} />, label: "PULSEGEAR TV" },
+              { icon: <TikTokIcon size={17} />, label: "@pulsegear.club" },
             ].map((s, i) => (
               <a
                 key={i}

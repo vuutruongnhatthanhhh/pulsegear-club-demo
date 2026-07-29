@@ -27,6 +27,23 @@ const C = {
   border: "rgba(255,255,255,0.07)",
 };
 
+function TikTokIcon({ size = 17 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+  );
+}
+
 function Noise({ op = 0.03 }: { op?: number }) {
   return (
     <div
@@ -75,7 +92,7 @@ const T = {
   },
   fullName: { vi: "Họ và tên", en: "Full name" },
   fullNamePh: { vi: "Nguyễn Văn A", en: "John Doe" },
-  emailPh: { vi: "ban@email.com", en: "you@email.com" },
+  emailPh: { vi: "xyz@email.com", en: "you@email.com" },
   phonePh: { vi: "0912 345 678", en: "+1 234 567 890" },
   subject: { vi: "Chủ đề", en: "Subject" },
   subjectPh: { vi: "Bạn cần hỗ trợ về vấn đề gì?", en: "What's this about?" },
@@ -104,14 +121,20 @@ const T = {
 
 const FAQS = [
   {
-    q: { vi: "Thời gian giao hàng mất bao lâu?", en: "How long does shipping take?" },
+    q: {
+      vi: "Thời gian giao hàng mất bao lâu?",
+      en: "How long does shipping take?",
+    },
     a: {
       vi: "Đơn hàng nội thành giao trong 1–2 ngày làm việc. Các tỉnh thành khác từ 2–5 ngày làm việc.",
       en: "Orders within the city arrive in 1–2 business days. Other provinces take 2–5 business days.",
     },
   },
   {
-    q: { vi: "Tôi có thể đổi trả sản phẩm không?", en: "Can I return or exchange a product?" },
+    q: {
+      vi: "Tôi có thể đổi trả sản phẩm không?",
+      en: "Can I return or exchange a product?",
+    },
     a: {
       vi: "Có, chúng tôi hỗ trợ đổi trả miễn phí trong vòng 30 ngày kể từ ngày nhận hàng, không cần lý do.",
       en: "Yes, we offer free returns and exchanges within 30 days of delivery, no questions asked.",
@@ -125,7 +148,10 @@ const FAQS = [
     },
   },
   {
-    q: { vi: "PULSEGEAR.CLUB có cửa hàng offline không?", en: "Does PULSEGEAR.CLUB have physical stores?" },
+    q: {
+      vi: "PULSEGEAR.CLUB có cửa hàng offline không?",
+      en: "Does PULSEGEAR.CLUB have physical stores?",
+    },
     a: {
       vi: "Hiện tại chúng tôi có showroom tại TP.HCM, xem vị trí chi tiết ở bản đồ bên dưới.",
       en: "We currently have a showroom in Ho Chi Minh City — see the map below for details.",
@@ -216,7 +242,7 @@ export default function ContactPage() {
           </h1>
 
           <p
-            className="mt-6 max-w-lg text-[16px] leading-relaxed"
+            className="mt-6 max-w-lg text-[17px] leading-relaxed"
             style={{ color: "rgba(255,255,255,0.6)" }}
           >
             {T.heroSub[lang]}
@@ -232,7 +258,10 @@ export default function ContactPage() {
               <div
                 key={i}
                 className="group relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1"
-                style={{ backgroundColor: C.bg3, border: `1px solid ${C.border}` }}
+                style={{
+                  backgroundColor: C.bg3,
+                  border: `1px solid ${C.border}`,
+                }}
               >
                 <div
                   className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
@@ -249,7 +278,7 @@ export default function ContactPage() {
                   <Icon size={20} />
                 </div>
                 <div
-                  className="mb-1 text-[11px] font-black tracking-[0.2em] uppercase"
+                  className="mb-1 text-[13px] font-black tracking-[0.2em] uppercase"
                   style={{ color: C.muted }}
                 >
                   {T[key][lang]}
@@ -303,7 +332,7 @@ export default function ContactPage() {
             {/* Form */}
             <div>
               <p
-                className="mb-4 text-[12px] font-black tracking-[0.45em] uppercase"
+                className="mb-4 text-[13px] font-black tracking-[0.3em] uppercase"
                 style={{ color: C.accent }}
               >
                 {T.formEyebrow[lang]}
@@ -312,7 +341,7 @@ export default function ContactPage() {
                 {T.formTitle[lang]}
               </h2>
               <p
-                className="mb-8 max-w-md text-[15px] leading-relaxed"
+                className="mb-8 max-w-md text-[16px] leading-relaxed"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
                 {T.formSub[lang]}
@@ -332,7 +361,10 @@ export default function ContactPage() {
                       type="text"
                       placeholder={T.fullNamePh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                      style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        backgroundColor: "#141414",
+                      }}
                     />
                   </div>
                   <div>
@@ -347,7 +379,10 @@ export default function ContactPage() {
                       type="email"
                       placeholder={T.emailPh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                      style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        backgroundColor: "#141414",
+                      }}
                     />
                   </div>
                 </div>
@@ -364,7 +399,10 @@ export default function ContactPage() {
                       type="tel"
                       placeholder={T.phonePh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                      style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        backgroundColor: "#141414",
+                      }}
                     />
                   </div>
                   <div>
@@ -378,7 +416,10 @@ export default function ContactPage() {
                       type="text"
                       placeholder={T.subjectPh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                      style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        backgroundColor: "#141414",
+                      }}
                     />
                   </div>
                 </div>
@@ -395,7 +436,10 @@ export default function ContactPage() {
                     rows={5}
                     placeholder={T.messagePh[lang]}
                     className="w-full resize-none bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                    style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                    style={{
+                      border: `1px solid ${C.border}`,
+                      backgroundColor: "#141414",
+                    }}
                   />
                 </div>
 
@@ -446,7 +490,10 @@ export default function ContactPage() {
 
               <div
                 className="mt-8 p-6"
-                style={{ backgroundColor: C.bg3, border: `1px solid ${C.border}` }}
+                style={{
+                  backgroundColor: C.bg3,
+                  border: `1px solid ${C.border}`,
+                }}
               >
                 <p
                   className="mb-4 text-[11px] font-black tracking-[0.3em] uppercase"
@@ -457,8 +504,9 @@ export default function ContactPage() {
                 <div className="flex items-center gap-3">
                   {[
                     { href: config.facebook || "#", Icon: Facebook },
+                    { href: config.instagram || "#", Icon: Instagram },
                     { href: config.youtube || "#", Icon: Youtube },
-                    { href: config.tiktok || "#", Icon: Instagram },
+                    { href: config.tiktok || "#", Icon: TikTokIcon },
                   ].map(({ href, Icon }, i) => (
                     <a
                       key={i}
@@ -466,13 +514,18 @@ export default function ContactPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex h-10 w-10 items-center justify-center transition-all hover:scale-110"
-                      style={{ border: `1px solid ${C.border}`, color: C.muted }}
+                      style={{
+                        border: `1px solid ${C.border}`,
+                        color: C.muted,
+                      }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = C.accent;
+                        (e.currentTarget as HTMLElement).style.borderColor =
+                          C.accent;
                         (e.currentTarget as HTMLElement).style.color = C.accent;
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = C.border;
+                        (e.currentTarget as HTMLElement).style.borderColor =
+                          C.border;
                         (e.currentTarget as HTMLElement).style.color = C.muted;
                       }}
                     >
@@ -492,7 +545,7 @@ export default function ContactPage() {
         <div className="relative mx-auto max-w-screen-xl px-8 py-24 md:px-16">
           <div className="mb-12 text-center">
             <p
-              className="mb-3 text-[12px] font-black tracking-[0.4em] uppercase"
+              className="mb-3 text-[13px] font-black tracking-[0.3em] uppercase"
               style={{ color: C.accent }}
             >
               {T.faqEyebrow[lang]}
@@ -507,13 +560,16 @@ export default function ContactPage() {
               <div
                 key={i}
                 className="p-6"
-                style={{ backgroundColor: C.bg3, border: `1px solid ${C.border}` }}
+                style={{
+                  backgroundColor: C.bg3,
+                  border: `1px solid ${C.border}`,
+                }}
               >
-                <h3 className="mb-2 text-base font-black text-white">
+                <h3 className="mb-2 text-[17px] font-black text-white">
                   {f.q[lang]}
                 </h3>
                 <p
-                  className="text-[14px] leading-relaxed"
+                  className="text-[15px] leading-relaxed"
                   style={{ color: C.muted }}
                 >
                   {f.a[lang]}

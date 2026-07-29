@@ -10,6 +10,7 @@ const config = {
 
   //SOCIAL
   facebook: "https://www.facebook.com/profile.php?id=61577630908608",
+  instagram: "https://www.instagram.com/pulsegear.club",
   group: "https://www.facebook.com/groups/1669804807036411",
   mess: "https://www.messenger.com/t/740050959180841",
   zalo: "https://zalo.me/0812303471",
