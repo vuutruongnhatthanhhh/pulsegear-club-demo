@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ChevronDown, Menu } from "lucide-react";
+import { Search, X, ChevronDown, Menu, User, ShoppingBag } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
 
 /* =========================================================
@@ -161,7 +161,7 @@ const Header: React.FC = () => {
 
                 {isLangOpen && (
                   <div
-                    className="absolute right-0 top-full mt-2 w-36 overflow-hidden py-1 shadow-2xl"
+                    className="absolute right-0 top-full z-50 mt-2 w-36 overflow-hidden py-1 shadow-2xl"
                     style={{
                       backgroundColor: "#111111",
                       border: `1px solid ${BORDER}`,
@@ -216,7 +216,7 @@ const Header: React.FC = () => {
             {/* Search */}
             <form className="ml-auto flex w-full max-w-md items-center">
               <div
-                className="flex w-full items-center overflow-hidden"
+                className="flex h-10 w-full items-stretch overflow-hidden"
                 style={{
                   border: `1px solid ${BORDER}`,
                   backgroundColor: "#141414",
@@ -225,11 +225,11 @@ const Header: React.FC = () => {
                 <input
                   name="q"
                   placeholder={TXT.searchPlaceholder[lang]}
-                  className="h-10 w-full bg-transparent px-4 text-[13px] text-white placeholder-white/20 outline-none"
+                  className="w-full bg-transparent px-4 text-[13px] text-white placeholder-white/20 outline-none"
                 />
                 <button
                   type="submit"
-                  className="flex h-10 w-11 shrink-0 items-center justify-center transition-opacity hover:opacity-80"
+                  className="flex w-11 shrink-0 items-center justify-center transition-opacity hover:opacity-80"
                   style={{ backgroundColor: ACCENT }}
                   aria-label="Search"
                 >
@@ -237,6 +237,32 @@ const Header: React.FC = () => {
                 </button>
               </div>
             </form>
+
+            {/* Account + Cart */}
+            <div className="flex items-center gap-1 shrink-0">
+              <Link
+                href="/dang-nhap"
+                className="flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
+                style={{ color: TEXT_MUTED }}
+                aria-label="Account"
+              >
+                <User size={19} />
+              </Link>
+              <Link
+                href="#"
+                className="relative flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
+                style={{ color: TEXT_MUTED }}
+                aria-label="Cart"
+              >
+                <ShoppingBag size={19} />
+                <span
+                  className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-black"
+                  style={{ backgroundColor: ACCENT }}
+                >
+                  0
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -311,7 +337,7 @@ const Header: React.FC = () => {
               </div>
             </Link>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
@@ -323,6 +349,28 @@ const Header: React.FC = () => {
               >
                 {isSearchOpen ? <X size={17} /> : <Search size={17} />}
               </button>
+              <Link
+                href="/dang-nhap"
+                className="flex h-9 w-9 items-center justify-center transition-colors"
+                style={{ color: TEXT_MUTED }}
+                aria-label="Account"
+              >
+                <User size={18} />
+              </Link>
+              <Link
+                href="#"
+                className="relative flex h-9 w-9 items-center justify-center transition-colors"
+                style={{ color: TEXT_MUTED }}
+                aria-label="Cart"
+              >
+                <ShoppingBag size={18} />
+                <span
+                  className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-black"
+                  style={{ backgroundColor: ACCENT }}
+                >
+                  0
+                </span>
+              </Link>
               <button
                 onClick={() => {
                   setIsSearchOpen(false);
@@ -351,7 +399,7 @@ const Header: React.FC = () => {
               >
                 <form className="flex items-center px-4 py-3 gap-2">
                   <div
-                    className="flex flex-1 items-center overflow-hidden"
+                    className="flex h-10 flex-1 items-stretch overflow-hidden"
                     style={{
                       border: `1px solid ${BORDER}`,
                       backgroundColor: "#141414",
@@ -361,11 +409,11 @@ const Header: React.FC = () => {
                       ref={searchInputRef}
                       name="q"
                       placeholder={TXT.searchPlaceholderShort[lang]}
-                      className="h-10 w-full bg-transparent px-4 text-sm text-white placeholder-white/20 outline-none"
+                      className="w-full bg-transparent px-4 text-sm text-white placeholder-white/20 outline-none"
                     />
                     <button
                       type="submit"
-                      className="flex h-10 w-10 shrink-0 items-center justify-center"
+                      className="flex w-10 shrink-0 items-center justify-center"
                       style={{ backgroundColor: ACCENT }}
                     >
                       <Search size={14} className="text-black" />

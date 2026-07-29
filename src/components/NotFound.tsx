@@ -1,52 +1,132 @@
-// app/not-found.tsx
+"use client";
+
 import Link from "next/link";
+import { ArrowRight, Home, Search } from "lucide-react";
+import { useI18nStore } from "@/lib/i18n/store";
+
+const C = {
+  bg: "#0A0A0A",
+  bg2: "#111111",
+  accent: "#FF3C00",
+  muted: "#888888",
+  border: "rgba(255,255,255,0.07)",
+};
+
+function Noise({ op = 0.03 }: { op?: number }) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        opacity: op,
+        backgroundImage:
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E\")",
+      }}
+    />
+  );
+}
+
+const T = {
+  eyebrow: { vi: "LỖI 404", en: "ERROR 404" },
+  title1: { vi: "LẠC", en: "OFF" },
+  title2: { vi: "ĐƯỜNG RỒI", en: "THE TRACK" },
+  sub: {
+    vi: "Trang bạn tìm không tồn tại, đã bị xoá, hoặc đã đổi đường dẫn. Quay lại vạch xuất phát thôi.",
+    en: "The page you're looking for doesn't exist, was removed, or moved. Let's get you back on track.",
+  },
+  home: { vi: "VỀ TRANG CHỦ", en: "BACK HOME" },
+  shop: { vi: "TIẾP TỤC MUA SẮM", en: "KEEP SHOPPING" },
+};
 
 export default function NotFound() {
-  return (
-    <div className="w-full">
-      {/* HERO */}
-      <section className="relative h-[34vh] min-h-[260px] md:h-[50vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url(/images/about-banner-9.jpg)", // thay ảnh tùy ý
-          }}
-        />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 mx-auto flex h-full max-w-6xl items-center justify-center px-6 text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
-            404 — Page Not Found
-          </h1>
-        </div>
-      </section>
+  const lang = useI18nStore((s) => s.lang);
 
-      {/* MAIN */}
-      {/* <section className="mx-auto max-w-3xl px-6 py-14 text-center">
-        <p className="text-xl text-neutral-700 leading-relaxed">
-          Trang bạn yêu cầu không tồn tại hoặc đã được di chuyển.
+  return (
+    <div
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-24 text-center"
+      style={{ backgroundColor: C.bg, color: "#fff" }}
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse 60% 55% at 50% 40%, ${C.accent}1c, transparent 70%)`,
+        }}
+      />
+      <Noise op={0.03} />
+
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(135deg,rgba(255,60,0,.8) 0 1px,transparent 1px 70px)",
+        }}
+      />
+
+      <div className="relative flex flex-col items-center">
+        <Link href="/" className="mb-10 flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="Pulsegear.Club"
+            className="h-11 w-11 object-contain"
+          />
+          <span className="text-sm font-black tracking-[0.1em] text-white">
+            PULSEGEAR.CLUB
+          </span>
+        </Link>
+
+        <p
+          className="mb-3 text-[11px] font-black tracking-[0.5em] uppercase"
+          style={{ color: C.accent }}
+        >
+          {T.eyebrow[lang]}
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="rounded bg-[#033F62] px-5 py-2 text-sm font-semibold text-white hover:bg-[#012a42]"
-          >
-            Về trang chủ
+        <div
+          className="select-none text-[clamp(6rem,22vw,13rem)] font-black leading-none tracking-[-0.03em]"
+          style={{
+            color: C.bg2,
+            WebkitTextStroke: `2px ${C.accent}`,
+            textShadow: `0 0 90px ${C.accent}40`,
+          }}
+        >
+          404
+        </div>
+
+        <h1 className="mt-2 text-3xl font-black leading-tight tracking-[-0.02em] text-white md:text-4xl">
+          {T.title1[lang]} <span style={{ color: C.accent }}>{T.title2[lang]}</span>
+        </h1>
+
+        <p
+          className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed"
+          style={{ color: C.muted }}
+        >
+          {T.sub[lang]}
+        </p>
+
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/">
+            <button
+              className="group relative flex items-center gap-2 overflow-hidden px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03] active:scale-[0.97]"
+              style={{ backgroundColor: C.accent }}
+            >
+              <Home size={14} className="relative z-10" />
+              <span className="relative z-10">{T.home[lang]}</span>
+              <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
+            </button>
           </Link>
-          <Link
-            href="/contact"
-            className="rounded bg-neutral-800 px-5 py-2 text-sm font-semibold text-white hover:bg-neutral-900"
-          >
-            Liên hệ chúng tôi
-          </Link>
-          <Link
-            href="/knowledge-center"
-            className="rounded border border-neutral-300 px-5 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
-          >
-            Knowledge Center
+          <Link href="/">
+            <button
+              className="group flex items-center gap-2 px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-white/70 transition-all hover:text-white"
+              style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              {T.shop[lang]}
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </button>
           </Link>
         </div>
-      </section> */}
+      </div>
     </div>
   );
 }
