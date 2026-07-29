@@ -12,7 +12,7 @@ type I18nState = {
 export const useI18nStore = create<I18nState>()(
   persist(
     (set) => ({
-      lang: "en", // ✅ mặc định tiếng Anh
+      lang: "vi", // ✅ mặc định tiếng Việt
       setLang: (l) => {
         // update <html lang="">
         if (typeof document !== "undefined") {
