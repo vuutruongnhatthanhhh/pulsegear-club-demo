@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type MouseEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Search, SearchX, ShoppingBag, Star } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronRight, Search, SearchX, ShoppingBag } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { CATEGORY_META, PRODUCTS_BY_CATEGORY } from "@/lib/products";
+import { useCartStore } from "@/lib/cart/store";
+import { flyToCart } from "@/lib/cart/flyStore";
 
 const C = {
   bg: "#0A0A0A",
@@ -59,25 +62,28 @@ const T = {
 
 const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
+type SearchResult = {
+  id: number;
+  slug: string;
+  accent: string;
+  name: { vi: string; en: string };
+  price: number;
+  oldPrice?: number;
+  img: string;
+  tag?: { vi: string; en: string } | null;
+  rating?: number;
+};
+
 export default function SearchPage() {
   const lang = useI18nStore((s) => s.lang);
   const searchParams = useSearchParams();
   const query = (searchParams.get("q") || "").trim();
+  const addItem = useCartStore((s) => s.addItem);
 
   const results = useMemo(() => {
     if (!query) return [];
     const q = query.toLowerCase();
-    const all: {
-      id: number;
-      slug: string;
-      accent: string;
-      name: { vi: string; en: string };
-      price: number;
-      oldPrice?: number;
-      img: string;
-      tag?: { vi: string; en: string } | null;
-      rating?: number;
-    }[] = [];
+    const all: SearchResult[] = [];
     for (const slug of Object.keys(PRODUCTS_BY_CATEGORY)) {
       const meta = CATEGORY_META[slug];
       for (const p of PRODUCTS_BY_CATEGORY[slug]) {
@@ -89,6 +95,30 @@ export default function SearchPage() {
     }
     return all;
   }, [query]);
+
+  const handleAddToCart = (
+    e: MouseEvent<HTMLButtonElement>,
+    p: SearchResult
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      key: `${p.slug}-${p.id}`,
+      category: p.slug,
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      oldPrice: p.oldPrice,
+      img: p.img,
+    });
+    const imgEl = e.currentTarget.parentElement?.querySelector("img");
+    if (imgEl) flyToCart(p.img, imgEl);
+    toast.success(
+      lang === "vi"
+        ? `Đã thêm "${p.name.vi}" vào giỏ hàng`
+        : `Added "${p.name.en}" to cart`
+    );
+  };
 
   return (
     <div
@@ -209,10 +239,7 @@ export default function SearchPage() {
                           </div>
                         )}
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
+                          onClick={(e) => handleAddToCart(e, p)}
                           className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] text-black opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
                           style={{ backgroundColor: p.accent }}
                         >
@@ -222,20 +249,6 @@ export default function SearchPage() {
                       </div>
 
                       <div className="mt-3">
-                        {p.rating && (
-                          <div className="mb-1 flex items-center gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                size={11}
-                                style={{
-                                  color: i < p.rating! ? p.accent : C.border,
-                                }}
-                                fill={i < p.rating! ? p.accent : "none"}
-                              />
-                            ))}
-                          </div>
-                        )}
                         <h3 className="text-[13px] font-bold leading-snug text-white">
                           {p.name[lang]}
                         </h3>

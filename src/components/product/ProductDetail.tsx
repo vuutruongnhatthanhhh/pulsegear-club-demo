@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   ChevronRight,
   Minus,
@@ -13,6 +14,8 @@ import {
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import type { CategoryMeta, Product } from "@/lib/products";
+import { useCartStore } from "@/lib/cart/store";
+import { flyToCart } from "@/lib/cart/flyStore";
 
 const C = {
   bg: "#0A0A0A",
@@ -74,6 +77,31 @@ export default function ProductDetail({
   const [size, setSize] = useState("M");
   const [color, setColor] = useState(0);
   const [qty, setQty] = useState(1);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const addItem = useCartStore((s) => s.addItem);
+
+  const handleAddToCart = () => {
+    addItem(
+      {
+        key: `${category.slug}-${product.id}-${size}-${SWATCHES[color]}`,
+        category: category.slug,
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        oldPrice: product.oldPrice,
+        img: product.img,
+        size,
+        color: SWATCHES[color],
+      },
+      qty
+    );
+    if (imgRef.current) flyToCart(product.img, imgRef.current);
+    toast.success(
+      lang === "vi"
+        ? `Đã thêm "${product.name.vi}" vào giỏ hàng`
+        : `Added "${product.name.en}" to cart`
+    );
+  };
 
   const descText =
     lang === "vi"
@@ -115,6 +143,7 @@ export default function ProductDetail({
             style={{ backgroundColor: C.bg3 }}
           >
             <img
+              ref={imgRef}
               src={product.img}
               alt={product.name[lang]}
               className="h-full w-full object-cover"
@@ -257,6 +286,7 @@ export default function ProductDetail({
             {/* Actions */}
             <div className="flex gap-3">
               <button
+                onClick={handleAddToCart}
                 className="group relative flex flex-1 items-center justify-center gap-2 overflow-hidden py-4 text-[12px] font-black tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
                 style={{ backgroundColor: category.accent }}
               >

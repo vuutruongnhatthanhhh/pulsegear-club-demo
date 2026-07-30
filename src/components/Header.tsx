@@ -6,6 +6,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ChevronDown, Menu, User, ShoppingBag } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
+import { useCartStore, cartCount } from "@/lib/cart/store";
+import { useFlyStore } from "@/lib/cart/flyStore";
 
 /* =========================================================
    DESIGN TOKENS
@@ -61,6 +63,9 @@ const Header: React.FC = () => {
 
   const lang = useI18nStore((s) => s.lang);
   const setLang = useI18nStore((s) => s.setLang);
+  const cartItems = useCartStore((s) => s.items);
+  const cartQty = cartCount(cartItems);
+  const cartBump = useFlyStore((s) => s.bump);
   const [isLangOpen, setLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement | null>(null);
   const langBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -253,18 +258,22 @@ const Header: React.FC = () => {
                 <User size={19} />
               </Link>
               <Link
-                href="#"
+                href="/gio-hang"
                 className="relative flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
                 style={{ color: TEXT_MUTED }}
                 aria-label="Cart"
               >
                 <ShoppingBag size={19} />
-                <span
+                <motion.span
+                  key={cartBump}
+                  initial={{ scale: 1.5 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
                   className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-black"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  0
-                </span>
+                  {cartQty}
+                </motion.span>
               </Link>
             </div>
           </div>
@@ -362,18 +371,22 @@ const Header: React.FC = () => {
                 <User size={18} />
               </Link>
               <Link
-                href="#"
+                href="/gio-hang"
                 className="relative flex h-9 w-9 items-center justify-center transition-colors"
                 style={{ color: TEXT_MUTED }}
                 aria-label="Cart"
               >
                 <ShoppingBag size={18} />
-                <span
+                <motion.span
+                  key={cartBump}
+                  initial={{ scale: 1.5 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
                   className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-black"
                   style={{ backgroundColor: ACCENT }}
                 >
-                  0
-                </span>
+                  {cartQty}
+                </motion.span>
               </Link>
               <button
                 onClick={() => {
@@ -499,14 +512,6 @@ const Header: React.FC = () => {
               {TXT.aboutUs[lang]}
             </button>
 
-            <button
-              onClick={() => handleRouteChange("/lien-he")}
-              className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
-              style={{ borderColor: BORDER }}
-            >
-              {TXT.contact[lang]}
-            </button>
-
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.en}
@@ -517,6 +522,14 @@ const Header: React.FC = () => {
                 {item[lang]}
               </button>
             ))}
+
+            <button
+              onClick={() => handleRouteChange("/lien-he")}
+              className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
+              style={{ borderColor: BORDER }}
+            >
+              {TXT.contact[lang]}
+            </button>
           </nav>
 
           {/* Lang switcher mobile */}

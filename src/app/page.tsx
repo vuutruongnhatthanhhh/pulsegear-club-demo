@@ -247,6 +247,7 @@ const CATEGORIES = [
     accentColor: "#FF3C00",
     tag: { vi: "MỚI VỀ", en: "NEW IN" },
     img: "/images/home/category-men.jpg",
+    href: "/do-nam",
   },
   {
     id: 2,
@@ -256,6 +257,7 @@ const CATEGORIES = [
     accentColor: "#A855F7",
     tag: { vi: "XU HƯỚNG", en: "TRENDING" },
     img: "/images/home/hero-2.jpg",
+    href: "/do-nu",
   },
   {
     id: 3,
@@ -265,6 +267,7 @@ const CATEGORIES = [
     accentColor: "#00C8FF",
     tag: { vi: "BÁN CHẠY", en: "BEST SELLER" },
     img: "/images/home/category-seamless.jpg",
+    href: "/lien-mach",
   },
   {
     id: 4,
@@ -274,6 +277,7 @@ const CATEGORIES = [
     accentColor: "#F59E0B",
     tag: { vi: "MỚI", en: "NEW" },
     img: "/images/home/category-jackets.jpg",
+    href: "/ao-khoac",
   },
   {
     id: 5,
@@ -283,6 +287,7 @@ const CATEGORIES = [
     accentColor: "#22C55E",
     tag: null,
     img: "/images/home/category-accessories.jpg",
+    href: "/phu-kien",
   },
   {
     id: 6,
@@ -292,6 +297,7 @@ const CATEGORIES = [
     accentColor: "#FF3C00",
     tag: { vi: "ĐẾN -50%", en: "UP TO -50%" },
     img: "/images/home/category-sale.jpg",
+    href: "/giam-gia",
   },
 ];
 
@@ -688,22 +694,22 @@ export default function Page() {
                 {T.shopByCategory[lang]}
               </h2>
             </div>
-            <a
-              href={VOID}
+            <Link
+              href="/bo-suu-tap"
               className="hidden items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white md:flex"
               style={{ color: C.muted }}
             >
               {T.viewAll[lang]} <ArrowRight size={13} />
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             {CATEGORIES.map((cat, i) => {
               const isWide = i === 0 || i === 1;
               return (
-                <a
+                <Link
                   key={cat.id}
-                  href={VOID}
+                  href={cat.href}
                   className={`group relative overflow-hidden ${isWide ? "col-span-2 lg:col-span-2 lg:row-span-2" : "col-span-1 lg:col-span-2"}`}
                   style={{
                     minHeight: isWide ? "440px" : "210px",
@@ -772,7 +778,7 @@ export default function Page() {
                       </span>
                     </div>
                   </div>
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -829,7 +835,7 @@ export default function Page() {
                 {T.storyP2[lang]}
               </p>
               <a
-                href={VOID}
+                href="/gioi-thieu"
                 className="group mt-10 inline-flex items-center gap-3 text-[12px] font-black tracking-[0.25em] uppercase text-white"
               >
                 {T.readStory[lang]}{" "}

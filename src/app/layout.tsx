@@ -11,6 +11,8 @@ import { Toaster } from "sonner";
 import BackToTopButton from "@/components/layout/BackToTopButton";
 import FloatingContactButtons from "@/components/layout/FloatingContactButtons";
 import I18nGate from "@/lib/i18n/I18nGate";
+import FloatingCartButton from "@/components/cart/FloatingCartButton";
+import FlyToCartLayer from "@/components/cart/FlyToCartLayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,12 +81,38 @@ export default function RootLayout({
 
         <I18nGate>
           <Header />
-          <Toaster position="top-center" richColors />
+          <Toaster
+            position="top-center"
+            theme="dark"
+            style={{ "--border-radius": "2px" } as React.CSSProperties}
+            toastOptions={{
+              style: {
+                background: "#111111",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "#ffffff",
+                fontSize: "13px",
+                fontWeight: 600,
+                boxShadow: "0 12px 32px rgba(0,0,0,0.55)",
+              },
+              classNames: {
+                title: "!font-bold !tracking-[0.01em]",
+                description: "!text-white/50",
+                closeButton:
+                  "!bg-[#161616] !border-white/10 !text-white/50 hover:!text-white",
+                success: "!border-l-[3px] !border-l-[#FF3C00] [&_svg]:!text-[#FF3C00]",
+                error: "!border-l-[3px] !border-l-red-500 [&_svg]:!text-red-500",
+                info: "!border-l-[3px] !border-l-[#00C8FF] [&_svg]:!text-[#00C8FF]",
+                warning: "!border-l-[3px] !border-l-amber-500 [&_svg]:!text-amber-500",
+              },
+            }}
+          />
           <main className="flex-grow w-full min-h-screen"> {children}</main>
           {/* <ContactBox /> */}
           <Footer />
           {/* <FloatingContactButtons /> */}
+          <FloatingCartButton />
           <BackToTopButton />
+          <FlyToCartLayer />
         </I18nGate>
       </body>
     </html>

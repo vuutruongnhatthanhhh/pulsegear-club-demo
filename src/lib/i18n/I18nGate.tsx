@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useI18nStore } from "./store";
+import { useCartStore } from "@/lib/cart/store";
 
 const ACCENT = "#FF3C00";
 
 /**
- * The persisted language lives in localStorage, which isn't available
- * during SSR. Rendering immediately would flash the default language
- * (en) before zustand's persist middleware finishes rehydrating from
- * localStorage. Gate children behind hydration so the first paint is
- * always the correct, persisted language.
+ * Persisted state (language, cart) lives in localStorage, which isn't
+ * available during SSR. Rendering immediately would flash defaults before
+ * zustand's persist middleware finishes rehydrating. Gate children behind
+ * hydration of both stores so the first paint always reflects saved state.
  */
 export default function I18nGate({
   children,
@@ -21,11 +21,23 @@ export default function I18nGate({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (useI18nStore.persist.hasHydrated()) {
+    const bothHydrated = () =>
+      useI18nStore.persist.hasHydrated() && useCartStore.persist.hasHydrated();
+
+    if (bothHydrated()) {
       setHydrated(true);
       return;
     }
-    return useI18nStore.persist.onFinishHydration(() => setHydrated(true));
+
+    const check = () => {
+      if (bothHydrated()) setHydrated(true);
+    };
+    const unsub1 = useI18nStore.persist.onFinishHydration(check);
+    const unsub2 = useCartStore.persist.onFinishHydration(check);
+    return () => {
+      unsub1();
+      unsub2();
+    };
   }, []);
 
   if (!hydrated) {

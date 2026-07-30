@@ -1,8 +1,12 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import Link from "next/link";
-import { ChevronRight, ShoppingBag, SlidersHorizontal, Star } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronRight, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
+import { useCartStore } from "@/lib/cart/store";
+import { flyToCart } from "@/lib/cart/flyStore";
 
 const C = {
   bg: "#0A0A0A",
@@ -62,6 +66,28 @@ export default function CategoryPage({
   products: Product[];
 }) {
   const lang = useI18nStore((s) => s.lang);
+  const addItem = useCartStore((s) => s.addItem);
+
+  const handleAddToCart = (e: MouseEvent<HTMLButtonElement>, p: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      key: `${slug}-${p.id}`,
+      category: slug,
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      oldPrice: p.oldPrice,
+      img: p.img,
+    });
+    const imgEl = e.currentTarget.parentElement?.querySelector("img");
+    if (imgEl) flyToCart(p.img, imgEl);
+    toast.success(
+      lang === "vi"
+        ? `Đã thêm "${p.name.vi}" vào giỏ hàng`
+        : `Added "${p.name.en}" to cart`
+    );
+  };
 
   return (
     <div style={{ backgroundColor: C.bg, color: "#fff" }}>
@@ -171,10 +197,7 @@ export default function CategoryPage({
                     </div>
                   )}
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
+                    onClick={(e) => handleAddToCart(e, p)}
                     className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] text-black opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
                     style={{ backgroundColor: accent }}
                   >
@@ -184,20 +207,6 @@ export default function CategoryPage({
                 </div>
 
                 <div className="mt-3">
-                  {p.rating && (
-                    <div className="mb-1 flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={11}
-                          style={{
-                            color: i < p.rating! ? accent : C.border,
-                          }}
-                          fill={i < p.rating! ? accent : "none"}
-                        />
-                      ))}
-                    </div>
-                  )}
                   <h3 className="text-[13px] font-bold leading-snug text-white">
                     {p.name[lang]}
                   </h3>
