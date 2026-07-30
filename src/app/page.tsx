@@ -13,6 +13,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
+import { DROPS } from "@/lib/drops";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -291,45 +292,6 @@ const CATEGORIES = [
     accentColor: "#FF3C00",
     tag: { vi: "ĐẾN -50%", en: "UP TO -50%" },
     img: "/images/home/category-sale.jpg",
-  },
-];
-
-const DROPS = [
-  {
-    id: 1,
-    badge: { vi: "VỪA RA MẮT", en: "JUST LAUNCHED" },
-    title: "APEX PRO SERIES",
-    sub: {
-      vi: "Trang phục tập luyện hiệu suất cao dành cho vận động viên đỉnh cao.",
-      en: "High-performance training gear built for elite athletes.",
-    },
-    tag: { vi: "Nam & Nữ", en: "Men & Women" },
-    glow: "#FF3C00",
-    img: "/images/home/drop-apex.jpg",
-  },
-  {
-    id: 2,
-    badge: { vi: "MÙA MỚI", en: "NEW SEASON" },
-    title: "SEAMLESS V2",
-    sub: {
-      vi: "Cảm giác như làn da thứ hai với công nghệ co giãn 4 chiều.",
-      en: "Feels like a second skin with 4-way stretch technology.",
-    },
-    tag: { vi: "Bộ sưu tập Nữ", en: "Women's Collection" },
-    glow: "#A855F7",
-    img: "/images/home/category-accessories.jpg",
-  },
-  {
-    id: 3,
-    badge: { vi: "BÁN CHẠY NHẤT", en: "BEST SELLER" },
-    title: "VITAL SEAMLESS",
-    sub: {
-      vi: "Bộ sưu tập đã tạo nên tên tuổi chúng tôi. Phiên bản tái sinh.",
-      en: "The collection that made our name. Reborn.",
-    },
-    tag: { vi: "Dòng đặc trưng", en: "Signature Line" },
-    glow: "#00C8FF",
-    img: "/images/home/drop-vital-seamless.jpg",
   },
 ];
 
@@ -969,24 +931,24 @@ export default function Page() {
                 <span style={{ color: C.accent }}>{T.dropsTitle2[lang]}</span>
               </h2>
             </div>
-            <a
-              href={VOID}
+            <Link
+              href="/bo-suu-tap"
               className="hidden items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-colors hover:text-white md:flex"
               style={{ color: C.muted }}
             >
               {T.viewAll[lang]} <ArrowRight size={13} />
-            </a>
+            </Link>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {DROPS.map((drop, i) => (
-              <a
+            {DROPS.slice(0, 3).map((drop, i) => (
+              <Link
                 key={drop.id}
-                href={VOID}
-                className="group relative block overflow-hidden"
+                href={drop.href}
+                className="group relative flex h-full flex-col overflow-hidden"
                 style={{ border: `1px solid ${C.border}` }}
               >
-                <div className="relative w-full overflow-hidden aspect-[16/9]">
+                <div className="relative w-full shrink-0 overflow-hidden aspect-[16/9]">
                   <img
                     src={drop.img}
                     alt={drop.title}
@@ -1015,7 +977,7 @@ export default function Page() {
                   style={{ backgroundColor: drop.glow }}
                 />
                 <div
-                  className="relative p-6"
+                  className="relative flex flex-1 flex-col p-6"
                   style={{ backgroundColor: C.bg3 }}
                 >
                   <p
@@ -1036,13 +998,13 @@ export default function Page() {
                     {drop.sub[lang]}
                   </p>
                   <div
-                    className="mt-5 flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase transition-all group-hover:gap-3"
+                    className="mt-auto flex items-center gap-2 pt-5 text-[11px] font-black tracking-[0.2em] uppercase transition-all group-hover:gap-3"
                     style={{ color: drop.glow }}
                   >
                     {T.shopNow[lang]} <ArrowRight size={12} />
                   </div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>

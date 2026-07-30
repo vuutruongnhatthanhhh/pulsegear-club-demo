@@ -19,14 +19,14 @@ const TEXT_MUTED = "rgba(255,255,255,0.5)";
    NAV ITEMS
    ========================================================= */
 const NAV_ITEMS = [
-  { vi: "Đồ Nam", en: "Men", href: "#" },
-  { vi: "Đồ Nữ", en: "Women", href: "#" },
-  { vi: "Liền Mạch", en: "Seamless", href: "#" },
-  { vi: "Áo Khoác", en: "Jackets", href: "#" },
-  { vi: "Quần Short", en: "Shorts", href: "#" },
-  { vi: "Phụ Kiện", en: "Accessories", href: "#" },
-  { vi: "Giảm Giá", en: "Sale", href: "#" },
-  { vi: "Tin Tức", en: "News", href: "#" },
+  { vi: "Đồ Nam", en: "Men", href: "/do-nam" },
+  { vi: "Đồ Nữ", en: "Women", href: "/do-nu" },
+  { vi: "Liền Mạch", en: "Seamless", href: "/lien-mach" },
+  { vi: "Áo Khoác", en: "Jackets", href: "/ao-khoac" },
+  { vi: "Quần Short", en: "Shorts", href: "/quan-short" },
+  { vi: "Phụ Kiện", en: "Accessories", href: "/phu-kien" },
+  { vi: "Giảm Giá", en: "Sale", href: "/giam-gia" },
+  { vi: "Tin Tức", en: "News", href: "/tin-tuc" },
 ];
 
 /* =========================================================
@@ -214,7 +214,11 @@ const Header: React.FC = () => {
             </Link>
 
             {/* Search */}
-            <form className="ml-auto flex w-full max-w-md items-center">
+            <form
+              action="/search"
+              method="get"
+              className="ml-auto flex w-full max-w-md items-center"
+            >
               <div
                 className="flex h-10 w-full items-stretch overflow-hidden"
                 style={{
@@ -397,7 +401,11 @@ const Header: React.FC = () => {
                 className="overflow-hidden border-t"
                 style={{ borderColor: BORDER }}
               >
-                <form className="flex items-center px-4 py-3 gap-2">
+                <form
+                  action="/search"
+                  method="get"
+                  className="flex items-center px-4 py-3 gap-2"
+                >
                   <div
                     className="flex h-10 flex-1 items-stretch overflow-hidden"
                     style={{
