@@ -1,20 +1,11 @@
 // src/components/Footer.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { Instagram, Youtube, Facebook, ArrowRight } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
-import {
-  getAllCategoriesService,
-  type CategoryService,
-} from "@/services/CategoriesService";
-import {
-  getAllCompanyInfos,
-  type CompanyInfo,
-} from "@/services/CompanyInfoService";
-import { getAllPolicies, type Policy } from "@/services/PolicyService";
-import { getMainPrice, type Price } from "@/services/PriceService";
+import { CATEGORY_META } from "@/lib/products";
 import config from "@/config";
 
 /* =========================================================
@@ -99,70 +90,18 @@ const Footer = () => {
   const lang = useI18nStore((s) => s.lang);
   const L = safeLang(lang);
 
-  const [categories, setCategories] = useState<CategoryService[]>([]);
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
-  const [policies, setPolicies] = useState<Policy[]>([]);
-  const [mainPrice, setMainPrice] = useState<Price | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getAllCategoriesService({
-          page: 1,
-          limit: 1000,
-          level: 1,
-        });
-        setCategories(res.data.reverse());
-      } catch {}
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getAllCompanyInfos({ page: 1, limit: 1 });
-        if (res.data.length > 0) setCompanyInfo(res.data[0]);
-      } catch {}
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await getAllPolicies({ page: 1, limit: 100 });
-        setPolicies(res.data);
-      } catch {}
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setMainPrice(await getMainPrice());
-      } catch {}
-    })();
-  }, []);
-
-  const getCategoryName = (cat: CategoryService) =>
-    cat.name[lang] || cat.name.vi || cat.name.en || "";
-
-  const getPolicyName = (policy: Policy) =>
-    policy.title?.[L] || policy.title?.vi || policy.title?.en || "";
-
-  const mainPriceHref = mainPrice?.url
-    ? `/bang-gia/${mainPrice.url}`
-    : mainPrice?.id
-      ? `/bang-gia/${mainPrice.id}`
-      : null;
-
   const mapEmbedSrc =
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4879.504307635821!2d106.6964218!3d10.7393764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f7cd686d175%3A0x7b325abcaf954a51!2sC%C3%B4ng%20ty%20Lu%E1%BA%ADt%20TNHH%20DAI%20%26%20Partners!5e1!3m2!1sen!2s!4v1767084073563!5m2!1sen!2s";
 
   const staticLinks = [
     { href: "/gioi-thieu", vi: "Giới thiệu", en: "About Us" },
     { href: "/lien-he", vi: "Liên hệ", en: "Contact" },
-    { href: "#", vi: "Tin tức", en: "News & Updates" },
+    { href: "/tin-tuc", vi: "Tin tức", en: "News & Updates" },
+    { href: "/bo-suu-tap", vi: "Bộ sưu tập", en: "Collections" },
+    { href: "/gio-hang", vi: "Giỏ hàng", en: "Cart" },
   ];
+
+  const categoryLinks = Object.values(CATEGORY_META);
 
   const socialLinks = [
     {
@@ -320,46 +259,20 @@ const Footer = () => {
                   {L === "vi" ? l.vi : l.en}
                 </FooterLink>
               ))}
-              {/* {policies.map((policy) => (
-                <FooterLink
-                  key={policy.id}
-                  href={
-                    policy.url
-                      ? `/policy/${policy.url}`
-                      : `/policy/${policy.id}`
-                  }
-                >
-                  {getPolicyName(policy)}
-                </FooterLink>
-              ))} */}
             </ul>
           </div>
 
-          {/* Col 3: Services */}
-          {/* <div>
-            <FooterHeading>{L === "vi" ? "Dịch vụ" : "Services"}</FooterHeading>
+          {/* Col 3: Categories */}
+          <div>
+            <FooterHeading>{L === "vi" ? "Danh mục" : "Categories"}</FooterHeading>
             <ul className="space-y-3">
-              {mainPriceHref && (
-                <FooterLink href={mainPriceHref}>
-                  {L === "vi" ? "Bảng giá" : "Pricing"}
+              {categoryLinks.map((cat) => (
+                <FooterLink key={cat.slug} href={`/${cat.slug}`}>
+                  {cat.title[lang]}
                 </FooterLink>
-              )}
-              {categories.length === 0 && !mainPriceHref ? (
-                <li className="text-[13px]" style={{ color: TEXT_MUTED }}>
-                  {L === "vi" ? "Chưa có danh mục" : "No categories"}
-                </li>
-              ) : (
-                categories.map((cat) => (
-                  <FooterLink
-                    key={cat.id}
-                    href={`/services?category_id=${cat.id}`}
-                  >
-                    {getCategoryName(cat)}
-                  </FooterLink>
-                ))
-              )}
+              ))}
             </ul>
-          </div> */}
+          </div>
 
           {/* Col 4: Map */}
           <div>

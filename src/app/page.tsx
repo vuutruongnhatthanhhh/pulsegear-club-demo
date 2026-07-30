@@ -1363,12 +1363,6 @@ export default function Page() {
                     {tile.label[lang]}
                   </span>
                 </div>
-                <div
-                  className="absolute right-2 top-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                  style={{ color: "rgba(255,255,255,0.6)" }}
-                >
-                  <IgIcon size={13} />
-                </div>
               </div>
             ))}
           </div>
