@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { DROPS } from "@/lib/drops";
+import { getBanners, type BannerSlide } from "@/lib/banners";
+import { getMarqueeItems, type MarqueeItem } from "@/lib/marquee";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -184,8 +186,10 @@ const TILE_LABELS = [
 /* ═══════════════════════════════════════════
    DATA
 ═══════════════════════════════════════════ */
-const SLIDES = [
+// Fallback hero slides — shown until banners load from the DB (and if the table is empty).
+const FALLBACK_SLIDES: BannerSlide[] = [
   {
+    id: -1,
     eyebrow: { vi: "BỘ SƯU TẬP SS25", en: "SS25 COLLECTION" },
     headline: {
       vi: ["VƯỢT QUA", "MỌI", "GIỚI HẠN"],
@@ -197,12 +201,15 @@ const SLIDES = [
       en: "The PULSEGEAR SS25 collection has landed. Made for those who never stop.",
     },
     cta1: { vi: "MUA ĐỒ NAM", en: "SHOP MEN" },
+    cta1Url: "/do-nam",
     cta2: { vi: "MUA ĐỒ NỮ", en: "SHOP WOMEN" },
+    cta2Url: "/do-nu",
     glow: "#FF3C00",
     tag: { vi: "MỚI VỀ", en: "NEW IN" },
     bg: "/images/home/hero-1.jpg",
   },
   {
+    id: -2,
     eyebrow: { vi: "SEAMLESS PRO V2", en: "SEAMLESS PRO V2" },
     headline: {
       vi: ["LIỀN MẠCH", "KHÔNG", "BÓ BUỘC"],
@@ -214,12 +221,15 @@ const SLIDES = [
       en: "Our most advanced seamless technology. 4-way stretch. Zero restriction. Absolute performance.",
     },
     cta1: { vi: "XEM NGAY", en: "SHOP NOW" },
+    cta1Url: "/san-pham",
     cta2: { vi: "XEM LOOKBOOK", en: "VIEW LOOKBOOK" },
+    cta2Url: "/san-pham",
     glow: "#00C8FF",
     tag: { vi: "BÁN CHẠY NHẤT", en: "BEST SELLER" },
     bg: "/images/home/hero-2.jpg",
   },
   {
+    id: -3,
     eyebrow: { vi: "BỘ SƯU TẬP PHỤ NỮ", en: "WOMEN'S COLLECTION" },
     headline: {
       vi: ["SINH RA", "ĐỂ", "THI ĐẤU"],
@@ -231,12 +241,20 @@ const SLIDES = [
       en: "Designed for the female body. Every seam, every stitch built for maximum performance.",
     },
     cta1: { vi: "MUA ĐỒ NỮ", en: "SHOP WOMEN" },
+    cta1Url: "/do-nu",
     cta2: { vi: "KHÁM PHÁ", en: "EXPLORE" },
+    cta2Url: "/san-pham",
     glow: "#A855F7",
     tag: { vi: "XU HƯỚNG", en: "TRENDING" },
     bg: "/images/home/hero-3.jpg",
   },
 ];
+
+// Fallback marquee items — shown until items load from the DB (and if the table is empty).
+const FALLBACK_MARQUEE: MarqueeItem[] = T.marquee.map((text, i) => ({
+  id: -(i + 1),
+  text,
+}));
 
 const CATEGORIES = [
   {
@@ -409,13 +427,25 @@ export default function Page() {
   const lang = useI18nStore((s) => s.lang);
 
   /* ── HERO SLIDE (fixed with ref) ── */
+  const [slides, setSlides] = useState<BannerSlide[]>(FALLBACK_SLIDES);
   const [heroIdx, setHeroIdx] = useState(0);
   const [animKey, setAnimKey] = useState(0);
   const busyRef = useRef(false);
   const idxRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const slide = SLIDES[heroIdx];
+  const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>(FALLBACK_MARQUEE);
+
+  useEffect(() => {
+    getBanners().then((data) => {
+      if (data.length > 0) setSlides(data);
+    });
+    getMarqueeItems().then((data) => {
+      if (data.length > 0) setMarqueeItems(data);
+    });
+  }, []);
+
+  const slide = slides[heroIdx] ?? slides[0];
 
   const changeSlide = (next: number) => {
     if (busyRef.current) return;
@@ -431,7 +461,7 @@ export default function Page() {
   const startInterval = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      const next = (idxRef.current + 1) % SLIDES.length;
+      const next = (idxRef.current + 1) % slides.length;
       changeSlide(next);
     }, 6000);
   };
@@ -442,7 +472,7 @@ export default function Page() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [slides.length]);
 
   const goHero = (i: number) => {
     if (i === idxRef.current) return;
@@ -564,7 +594,7 @@ export default function Page() {
           </p>
 
           <div className="hero-anim hero-d4 mt-9 flex flex-wrap gap-4 opacity-0">
-            <a href={VOID}>
+            <Link href={slide.cta1Url || VOID}>
               <button
                 className="group relative overflow-hidden px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03] active:scale-[0.97]"
                 style={{ backgroundColor: slide.glow }}
@@ -572,15 +602,15 @@ export default function Page() {
                 <span className="relative z-10">{slide.cta1[lang]}</span>
                 <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
               </button>
-            </a>
-            <a href={VOID}>
+            </Link>
+            <Link href={slide.cta2Url || VOID}>
               <button
                 className="px-9 py-4 text-[12px] font-black tracking-[0.25em] uppercase text-white/55 transition-all hover:text-white"
                 style={{ border: "1px solid rgba(255,255,255,0.15)" }}
               >
                 {slide.cta2[lang]}
               </button>
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -594,11 +624,11 @@ export default function Page() {
               {String(heroIdx + 1).padStart(2, "0")}
             </span>
             &nbsp;/&nbsp;
-            {String(SLIDES.length).padStart(2, "0")}
+            {String(slides.length).padStart(2, "0")}
           </span>
 
           <div className="flex items-center gap-2">
-            {SLIDES.map((_, i) => (
+            {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goHero(i)}
@@ -620,7 +650,7 @@ export default function Page() {
               <button
                 key={dir}
                 onClick={() =>
-                  goHero((heroIdx + dir + SLIDES.length) % SLIDES.length)
+                  goHero((heroIdx + dir + slides.length) % slides.length)
                 }
                 className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white"
                 style={{
@@ -658,23 +688,20 @@ export default function Page() {
       >
         <div className="marquee-run flex gap-16">
           {Array.from({ length: 2 }, (_, rep) =>
-            [
-              T.marquee[0][lang],
-              "★ PULSEGEAR.CLUB ★",
-              T.marquee[1][lang],
-              "★ PULSEGEAR.CLUB ★",
-              T.marquee[2][lang],
-              "★ PULSEGEAR.CLUB ★",
-              T.marquee[3][lang],
-              "★ PULSEGEAR.CLUB ★",
-            ].map((item, i) => (
+            marqueeItems.flatMap((item, i) => [
               <span
-                key={`${rep}-${i}`}
+                key={`${rep}-${i}-text`}
                 className="whitespace-nowrap text-[11px] font-black tracking-[0.3em] uppercase text-black"
               >
-                {item}
-              </span>
-            )),
+                {item.text[lang]}
+              </span>,
+              <span
+                key={`${rep}-${i}-sep`}
+                className="whitespace-nowrap text-[11px] font-black tracking-[0.3em] uppercase text-black"
+              >
+                ★ PULSEGEAR.CLUB ★
+              </span>,
+            ]),
           )}
         </div>
       </div>
