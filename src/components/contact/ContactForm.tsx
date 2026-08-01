@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import config from "@/config";
 import Link from "next/link";
 import { FaYoutube, FaFacebook, FaTiktok } from "react-icons/fa";
 import { GrGroup } from "react-icons/gr";
+import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
 
 export default function ContactFormFancy() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,13 @@ export default function ContactFormFancy() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [social, setSocial] = useState(FALLBACK_SOCIAL_CONFIG);
+  useEffect(() => {
+    getSocialConfig().then((data) => {
+      if (data) setSocial(data);
+    });
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -84,21 +92,21 @@ export default function ContactFormFancy() {
           {/* social media */}
           <div className="mb-6 flex gap-4 justify-center sm:justify-start">
             <Link
-              href={config.youtube}
+              href={social.youtube}
               target="_blank"
               className="text-blue-400 hover:text-blue-500"
             >
               <FaYoutube className="h-6 w-6" />
             </Link>
             <Link
-              href={config.tiktok}
+              href={social.tiktok}
               target="_blank"
               className="text-blue-400 hover:text-blue-500"
             >
               <FaTiktok className="h-6 w-6" />
             </Link>
             <Link
-              href={config.facebook}
+              href={social.facebook}
               target="_blank"
               className="text-blue-400 hover:text-blue-500"
             >
@@ -106,7 +114,7 @@ export default function ContactFormFancy() {
             </Link>
 
             <Link
-              href={config.group}
+              href={social.group}
               target="_blank"
               className="text-blue-400 hover:text-blue-500"
             >

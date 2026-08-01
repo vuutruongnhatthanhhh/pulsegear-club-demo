@@ -26,6 +26,9 @@ import {
 } from "@/lib/features";
 import { getStats, type Stat } from "@/lib/stats";
 import { getServices, SERVICE_ICONS, type Service } from "@/lib/services";
+import { getReviews, getReviewsSection, type Review, type ReviewsSectionData } from "@/lib/reviews";
+import { getCommunityTiles, type CommunityTile } from "@/lib/community";
+import { getSocialConfig, FALLBACK_SOCIAL_CONFIG, type SocialConfig } from "@/lib/socialConfig";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -184,13 +187,14 @@ const T = {
   communityJoin2: { vi: "PHONG TRÀO", en: "MOVEMENT" },
 };
 
-const TILE_LABELS = [
-  { vi: "TẬP LUYỆN", en: "TRAINING" },
-  { vi: "LIỀN MẠCH", en: "SEAMLESS" },
-  { vi: "CHẠY BỘ", en: "RUNNING" },
-  { vi: "ÁO KHOÁC", en: "JACKETS" },
-  { vi: "GỬ TẠ", en: "LIFTING" },
-  { vi: "PHỤC HỒI", en: "RECOVERY" },
+// Fallback community tiles — shown until they load from the DB.
+const FALLBACK_COMMUNITY_TILES: CommunityTile[] = [
+  { id: -1, label: { vi: "TẬP LUYỆN", en: "TRAINING" }, img: "/images/home/hero-2.jpg", glow: "#FF3C00", href: "#" },
+  { id: -2, label: { vi: "LIỀN MẠCH", en: "SEAMLESS" }, img: "/images/home/category-seamless.jpg", glow: "#A855F7", href: "#" },
+  { id: -3, label: { vi: "CHẠY BỘ", en: "RUNNING" }, img: "/images/home/category-accessories.jpg", glow: "#00C8FF", href: "#" },
+  { id: -4, label: { vi: "ÁO KHOÁC", en: "JACKETS" }, img: "/images/home/category-jackets.jpg", glow: "#F59E0B", href: "#" },
+  { id: -5, label: { vi: "GỬ TẠ", en: "LIFTING" }, img: "/images/home/category-men.jpg", glow: "#22C55E", href: "#" },
+  { id: -6, label: { vi: "PHỤC HỒI", en: "RECOVERY" }, img: "/images/home/drop-apex.jpg", glow: "#FF3C00", href: "#" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -421,8 +425,10 @@ const FALLBACK_SERVICES: Service[] = [
   { id: -3, icon: "Shield", title: T.serviceQualityTitle, sub: T.serviceQualitySub },
 ];
 
-const REVIEWS = [
+// Fallback reviews — shown until they load from the DB.
+const FALLBACK_REVIEWS: Review[] = [
   {
+    id: -1,
     name: "Minh Anh",
     handle: "@minhanh.fit",
     text: {
@@ -433,6 +439,7 @@ const REVIEWS = [
     product: "APEX Pro Shorts",
   },
   {
+    id: -2,
     name: "Tuấn Kiệt",
     handle: "@kiettrain",
     text: {
@@ -443,6 +450,7 @@ const REVIEWS = [
     product: "Vital Seamless Tee",
   },
   {
+    id: -3,
     name: "Thu Hà",
     handle: "@thuha.lifts",
     text: {
@@ -453,6 +461,13 @@ const REVIEWS = [
     product: "Seamless V2 Leggings",
   },
 ];
+
+// Fallback reviews section heading — shown until it loads from the DB.
+const FALLBACK_REVIEWS_SECTION: ReviewsSectionData = {
+  eyebrow: T.reviewsEyebrow,
+  title1: T.reviewsTitle1,
+  title2: T.reviewsTitle2,
+};
 
 /* ═══════════════════════════════════════════
    NOISE OVERLAY
@@ -492,6 +507,10 @@ export default function Page() {
   const [featuresSection, setFeaturesSection] = useState<FeaturesSectionData>(FALLBACK_FEATURES_SECTION);
   const [stats, setStats] = useState<Stat[]>(FALLBACK_STATS);
   const [services, setServices] = useState<Service[]>(FALLBACK_SERVICES);
+  const [reviews, setReviews] = useState<Review[]>(FALLBACK_REVIEWS);
+  const [reviewsSection, setReviewsSection] = useState<ReviewsSectionData>(FALLBACK_REVIEWS_SECTION);
+  const [communityTiles, setCommunityTiles] = useState<CommunityTile[]>(FALLBACK_COMMUNITY_TILES);
+  const [socialConfig, setSocialConfig] = useState<SocialConfig>(FALLBACK_SOCIAL_CONFIG);
 
   useEffect(() => {
     getBanners().then((data) => {
@@ -520,6 +539,18 @@ export default function Page() {
     });
     getServices().then((data) => {
       if (data.length > 0) setServices(data);
+    });
+    getReviews().then((data) => {
+      if (data.length > 0) setReviews(data);
+    });
+    getReviewsSection().then((data) => {
+      if (data) setReviewsSection(data);
+    });
+    getCommunityTiles().then((data) => {
+      if (data.length > 0) setCommunityTiles(data);
+    });
+    getSocialConfig().then((data) => {
+      if (data) setSocialConfig(data);
     });
   }, []);
 
@@ -1227,17 +1258,17 @@ export default function Page() {
               className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.reviewsEyebrow[lang]}
+              {reviewsSection.eyebrow[lang]}
             </p>
             <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-              {T.reviewsTitle1[lang]}{" "}
-              <span style={{ color: C.accent }}>{T.reviewsTitle2[lang]}</span>
+              {reviewsSection.title1[lang]}{" "}
+              <span style={{ color: C.accent }}>{reviewsSection.title2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {REVIEWS.map((r, i) => (
+            {reviews.map((r) => (
               <div
-                key={i}
+                key={r.id}
                 className="group relative overflow-hidden p-7 transition-all duration-300 hover:-translate-y-0.5"
                 style={{
                   backgroundColor: C.bg3,
@@ -1332,41 +1363,13 @@ export default function Page() {
           </div>
 
           <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
-            {[
-              {
-                img: "/images/home/hero-2.jpg",
-                glow: C.accent,
-                label: TILE_LABELS[0],
-              },
-              {
-                img: "/images/home/category-seamless.jpg",
-                glow: "#A855F7",
-                label: TILE_LABELS[1],
-              },
-              {
-                img: "/images/home/category-accessories.jpg",
-                glow: "#00C8FF",
-                label: TILE_LABELS[2],
-              },
-              {
-                img: "/images/home/category-jackets.jpg",
-                glow: "#F59E0B",
-                label: TILE_LABELS[3],
-              },
-              {
-                img: "/images/home/category-men.jpg",
-                glow: "#22C55E",
-                label: TILE_LABELS[4],
-              },
-              {
-                img: "/images/home/drop-apex.jpg",
-                glow: C.accent,
-                label: TILE_LABELS[5],
-              },
-            ].map((tile, i) => (
-              <div
-                key={i}
-                className="group relative aspect-square cursor-pointer overflow-hidden"
+            {communityTiles.map((tile) => (
+              <a
+                key={tile.id}
+                href={tile.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square block cursor-pointer overflow-hidden"
               >
                 <img
                   src={tile.img}
@@ -1388,20 +1391,22 @@ export default function Page() {
                     {tile.label[lang]}
                   </span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4 md:gap-8">
             {[
-              { icon: <IgIcon size={17} />, label: "@pulsegear.club" },
-              { icon: <FbIcon size={17} />, label: "PULSEGEAR" },
-              { icon: <YtIcon size={17} />, label: "PULSEGEAR TV" },
-              { icon: <TikTokIcon size={17} />, label: "@pulsegear.club" },
+              { icon: <IgIcon size={17} />, label: "@pulsegear.club", href: socialConfig.instagram },
+              { icon: <FbIcon size={17} />, label: "PULSEGEAR", href: socialConfig.facebook },
+              { icon: <YtIcon size={17} />, label: "PULSEGEAR TV", href: socialConfig.youtube },
+              { icon: <TikTokIcon size={17} />, label: "@pulsegear.club", href: socialConfig.tiktok },
             ].map((s, i) => (
               <a
                 key={i}
-                href={VOID}
+                href={s.href || VOID}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[11px] font-bold tracking-[0.15em] uppercase transition-colors hover:text-white"
                 style={{ color: C.muted }}
               >

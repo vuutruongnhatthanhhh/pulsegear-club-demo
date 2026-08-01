@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   MapPin,
@@ -16,6 +16,8 @@ import {
 import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
 import config from "@/config";
+import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
+import { getMapEmbedUrl, FALLBACK_MAP_EMBED_URL } from "@/lib/mapConfig";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -166,12 +168,22 @@ const CONTACT_CARDS = [
   { Icon: Clock, key: "hours" as const },
 ];
 
-const mapEmbedSrc =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4879.504307635821!2d106.6964218!3d10.7393764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f7cd686d175%3A0x7b325abcaf954a51!2sC%C3%B4ng%20ty%20Lu%E1%BA%ADt%20TNHH%20DAI%20%26%20Partners!5e1!3m2!1sen!2s!4v1767084073563!5m2!1sen!2s";
 
 export default function ContactPage() {
   const lang = useI18nStore((s) => s.lang);
   const [submitting, setSubmitting] = useState(false);
+  const [social, setSocial] = useState(FALLBACK_SOCIAL_CONFIG);
+  useEffect(() => {
+    getSocialConfig().then((data) => {
+      if (data) setSocial(data);
+    });
+  }, []);
+  const [mapEmbedSrc, setMapEmbedSrc] = useState(FALLBACK_MAP_EMBED_URL);
+  useEffect(() => {
+    getMapEmbedUrl().then((url) => {
+      if (url) setMapEmbedSrc(url);
+    });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -503,10 +515,10 @@ export default function ContactPage() {
                 </p>
                 <div className="flex items-center gap-3">
                   {[
-                    { href: config.facebook || "#", Icon: Facebook },
-                    { href: config.instagram || "#", Icon: Instagram },
-                    { href: config.youtube || "#", Icon: Youtube },
-                    { href: config.tiktok || "#", Icon: TikTokIcon },
+                    { href: social.facebook || "#", Icon: Facebook },
+                    { href: social.instagram || "#", Icon: Instagram },
+                    { href: social.youtube || "#", Icon: Youtube },
+                    { href: social.tiktok || "#", Icon: TikTokIcon },
                   ].map(({ href, Icon }, i) => (
                     <a
                       key={i}

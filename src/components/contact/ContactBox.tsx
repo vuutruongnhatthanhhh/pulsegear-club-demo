@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronUp } from "lucide-react";
 import { FaPhoneAlt, FaFacebookMessenger, FaEnvelope } from "react-icons/fa";
 import config from "@/config";
+import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
 
 interface Contact {
   name: string;
@@ -20,12 +21,19 @@ export default function ContactBox() {
   const iconRef = useRef<HTMLDivElement | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  const [social, setSocial] = useState(FALLBACK_SOCIAL_CONFIG);
+  useEffect(() => {
+    getSocialConfig().then((data) => {
+      if (data) setSocial(data);
+    });
+  }, []);
+
   const contact: Contact = {
     name: config.companyName,
     phone: config.companyPhone,
-    zaloLink: config.zalo,
+    zaloLink: social.zalo,
     email: config.companyEmail,
-    messengerLink: config.mess,
+    messengerLink: social.messenger,
   };
 
   useEffect(() => {

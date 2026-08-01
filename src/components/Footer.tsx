@@ -1,12 +1,13 @@
 // src/components/Footer.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Instagram, Youtube, Facebook, ArrowRight } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
 import { CATEGORY_META } from "@/lib/products";
-import config from "@/config";
+import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
+import { getMapEmbedUrl, FALLBACK_MAP_EMBED_URL } from "@/lib/mapConfig";
 
 /* =========================================================
    TOKENS
@@ -90,8 +91,19 @@ const Footer = () => {
   const lang = useI18nStore((s) => s.lang);
   const L = safeLang(lang);
 
-  const mapEmbedSrc =
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4879.504307635821!2d106.6964218!3d10.7393764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f7cd686d175%3A0x7b325abcaf954a51!2sC%C3%B4ng%20ty%20Lu%E1%BA%ADt%20TNHH%20DAI%20%26%20Partners!5e1!3m2!1sen!2s!4v1767084073563!5m2!1sen!2s";
+  const [config, setConfig] = useState(FALLBACK_SOCIAL_CONFIG);
+  useEffect(() => {
+    getSocialConfig().then((data) => {
+      if (data) setConfig(data);
+    });
+  }, []);
+
+  const [mapEmbedSrc, setMapEmbedSrc] = useState(FALLBACK_MAP_EMBED_URL);
+  useEffect(() => {
+    getMapEmbedUrl().then((url) => {
+      if (url) setMapEmbedSrc(url);
+    });
+  }, []);
 
   const staticLinks = [
     { href: "/gioi-thieu", vi: "Giới thiệu", en: "About Us" },
