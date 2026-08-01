@@ -8,6 +8,7 @@ import { Search, X, ChevronDown, Menu, User, ShoppingBag } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
 import { useCartStore, cartCount } from "@/lib/cart/store";
 import { useFlyStore } from "@/lib/cart/flyStore";
+import { getAllCategories } from "@/lib/categories";
 
 /* =========================================================
    DESIGN TOKENS
@@ -20,7 +21,10 @@ const TEXT_MUTED = "rgba(255,255,255,0.5)";
 /* =========================================================
    NAV ITEMS
    ========================================================= */
-const NAV_ITEMS = [
+type NavItem = { vi: string; en: string; href: string };
+
+// Fallback nav categories — shown until categories load from the DB.
+const FALLBACK_CATEGORY_NAV_ITEMS: NavItem[] = [
   { vi: "Đồ Nam", en: "Men", href: "/do-nam" },
   { vi: "Đồ Nữ", en: "Women", href: "/do-nu" },
   { vi: "Liền Mạch", en: "Seamless", href: "/lien-mach" },
@@ -28,8 +32,10 @@ const NAV_ITEMS = [
   { vi: "Quần Short", en: "Shorts", href: "/quan-short" },
   { vi: "Phụ Kiện", en: "Accessories", href: "/phu-kien" },
   { vi: "Giảm Giá", en: "Sale", href: "/giam-gia" },
-  { vi: "Tin Tức", en: "News", href: "/tin-tuc" },
 ];
+
+// Not a product category — always a static nav link, appended after the categories.
+const NEWS_NAV_ITEM: NavItem = { vi: "Tin Tức", en: "News", href: "/tin-tuc" };
 
 /* =========================================================
    COPY
@@ -69,6 +75,17 @@ const Header: React.FC = () => {
   const [isLangOpen, setLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement | null>(null);
   const langBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  const [categoryNavItems, setCategoryNavItems] = useState<NavItem[]>(FALLBACK_CATEGORY_NAV_ITEMS);
+  const NAV_ITEMS: NavItem[] = [...categoryNavItems, NEWS_NAV_ITEM];
+
+  useEffect(() => {
+    getAllCategories().then((data) => {
+      if (data.length > 0) {
+        setCategoryNavItems(data.map((c) => ({ vi: c.label.vi, en: c.label.en, href: c.href })));
+      }
+    });
+  }, []);
 
   // Scroll detection
   useEffect(() => {
