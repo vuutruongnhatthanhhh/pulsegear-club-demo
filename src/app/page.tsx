@@ -19,6 +19,13 @@ import { getMarqueeItems, type MarqueeItem } from "@/lib/marquee";
 import { getHomepageCategories, type Category } from "@/lib/categories";
 import { CategoryTile } from "@/components/home/CategoryTile";
 import { getStorySection, type StorySection } from "@/lib/story";
+import {
+  getFeatureCards,
+  getFeaturesSection,
+  FEATURE_ICONS,
+  type FeatureCard,
+  type FeaturesSectionData,
+} from "@/lib/features";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -344,10 +351,11 @@ const FALLBACK_STORY: StorySection = {
   stat2Label: T.statHappy,
 };
 
-const FEATURES = [
+// Fallback feature cards — shown until they load from the DB.
+const FALLBACK_FEATURE_CARDS: FeatureCard[] = [
   {
-    icon: <Zap size={22} />,
-    num: "01",
+    id: -1,
+    icon: "Zap",
     title: { vi: "KỸ THUẬT CAO", en: "ADVANCED TECH" },
     desc: {
       vi: "Co giãn 4 chiều, thoát ẩm và công nghệ chống mùi trong từng sản phẩm. Được tạo ra để di chuyển cùng cơ thể bạn.",
@@ -355,8 +363,8 @@ const FEATURES = [
     },
   },
   {
-    icon: <Star size={22} />,
-    num: "02",
+    id: -2,
+    icon: "Star",
     title: { vi: "CHẤT LƯỢNG CAO CẤP", en: "PREMIUM QUALITY" },
     desc: {
       vi: "Đường may gia cố, màu vải bền màu, chịu được hàng nghìn lần giặt. Chúng tôi đứng sau từng mũi chỉ.",
@@ -364,8 +372,8 @@ const FEATURES = [
     },
   },
   {
-    icon: <Shield size={22} />,
-    num: "03",
+    id: -3,
+    icon: "Shield",
     title: { vi: "ĐA DẠNG KÍCH CỠ", en: "SIZE INCLUSIVE" },
     desc: {
       vi: "Từ XS đến 4XL, thiết kế từ dữ liệu cơ thể thực của vận động viên. Vì trang phục hiệu suất phải vừa với tất cả.",
@@ -373,8 +381,8 @@ const FEATURES = [
     },
   },
   {
-    icon: <RotateCcw size={22} />,
-    num: "04",
+    id: -4,
+    icon: "RotateCcw",
     title: { vi: "TƯƠNG LAI BỀN VỮNG", en: "SUSTAINABLE FUTURE" },
     desc: {
       vi: "100% bao bì tái chế. Nguồn gốc có trách nhiệm. Chúng tôi xây dựng thương hiệu tồn tại lâu dài — cả với hành tinh.",
@@ -382,6 +390,13 @@ const FEATURES = [
     },
   },
 ];
+
+// Fallback features section heading — shown until it loads from the DB.
+const FALLBACK_FEATURES_SECTION: FeaturesSectionData = {
+  eyebrow: T.featuresEyebrow,
+  title1: T.featuresTitle1,
+  title2: T.featuresTitle2,
+};
 
 const STATS = [
   {
@@ -463,6 +478,8 @@ export default function Page() {
   const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
   const [story, setStory] = useState<StorySection>(FALLBACK_STORY);
   const [drops, setDrops] = useState<Drop[]>(FALLBACK_HOMEPAGE_DROPS);
+  const [featureCards, setFeatureCards] = useState<FeatureCard[]>(FALLBACK_FEATURE_CARDS);
+  const [featuresSection, setFeaturesSection] = useState<FeaturesSectionData>(FALLBACK_FEATURES_SECTION);
 
   useEffect(() => {
     getBanners().then((data) => {
@@ -479,6 +496,12 @@ export default function Page() {
     });
     getHomepageDrops().then((data) => {
       if (data.length > 0) setDrops(data);
+    });
+    getFeatureCards().then((data) => {
+      if (data.length > 0) setFeatureCards(data);
+    });
+    getFeaturesSection().then((data) => {
+      if (data) setFeaturesSection(data);
     });
   }, []);
 
@@ -1027,58 +1050,61 @@ export default function Page() {
               className="mb-5 text-[12px] font-black tracking-[0.45em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.featuresEyebrow[lang]}
+              {featuresSection.eyebrow[lang]}
             </p>
             <h2 className="text-4xl font-black tracking-[-0.025em] text-white md:text-5xl">
-              {T.featuresTitle1[lang]}{" "}
-              <span style={{ color: C.accent }}>{T.featuresTitle2[lang]}</span>
+              {featuresSection.title1[lang]}{" "}
+              <span style={{ color: C.accent }}>{featuresSection.title2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map((f) => (
-              <div
-                key={f.num}
-                className="group relative overflow-hidden p-7 transition-all duration-300 hover:-translate-y-1"
-                style={{
-                  backgroundColor: C.bg3,
-                  border: `1px solid ${C.border}`,
-                }}
-              >
+            {featureCards.map((f, i) => {
+              const Icon = FEATURE_ICONS[f.icon] ?? Zap;
+              return (
                 <div
-                  className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
-                  style={{ backgroundColor: C.accent }}
-                />
-                <div
-                  className="mb-4 text-6xl font-black leading-none"
-                  style={{ color: C.accent, opacity: 0.1 }}
-                >
-                  {f.num}
-                </div>
-                <div
-                  className="mb-4 inline-flex h-11 w-11 items-center justify-center"
+                  key={f.id}
+                  className="group relative overflow-hidden p-7 transition-all duration-300 hover:-translate-y-1"
                   style={{
-                    backgroundColor: `${C.accent}15`,
-                    border: `1px solid ${C.accent}30`,
-                    color: C.accent,
+                    backgroundColor: C.bg3,
+                    border: `1px solid ${C.border}`,
                   }}
                 >
-                  {f.icon}
+                  <div
+                    className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
+                    style={{ backgroundColor: C.accent }}
+                  />
+                  <div
+                    className="mb-4 text-6xl font-black leading-none"
+                    style={{ color: C.accent, opacity: 0.1 }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </div>
+                  <div
+                    className="mb-4 inline-flex h-11 w-11 items-center justify-center"
+                    style={{
+                      backgroundColor: `${C.accent}15`,
+                      border: `1px solid ${C.accent}30`,
+                      color: C.accent,
+                    }}
+                  >
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="mb-3 text-sm font-black tracking-[0.08em] text-white">
+                    {f.title[lang]}
+                  </h3>
+                  <div
+                    className="mb-4 h-[1px] w-8 transition-all duration-300 group-hover:w-14"
+                    style={{ backgroundColor: C.accent }}
+                  />
+                  <p
+                    className="text-[15px] leading-relaxed"
+                    style={{ color: C.muted }}
+                  >
+                    {f.desc[lang]}
+                  </p>
                 </div>
-                <h3 className="mb-3 text-sm font-black tracking-[0.08em] text-white">
-                  {f.title[lang]}
-                </h3>
-                <div
-                  className="mb-4 h-[1px] w-8 transition-all duration-300 group-hover:w-14"
-                  style={{ backgroundColor: C.accent }}
-                />
-                <p
-                  className="text-[15px] leading-relaxed"
-                  style={{ color: C.muted }}
-                >
-                  {f.desc[lang]}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
