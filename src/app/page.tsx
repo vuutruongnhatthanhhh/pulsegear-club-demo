@@ -9,8 +9,6 @@ import {
   Zap,
   Star,
   Truck,
-  RotateCcw,
-  Shield,
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { getHomepageDrops, FALLBACK_HOMEPAGE_DROPS, type Drop } from "@/lib/drops";
@@ -26,6 +24,8 @@ import {
   type FeatureCard,
   type FeaturesSectionData,
 } from "@/lib/features";
+import { getStats, type Stat } from "@/lib/stats";
+import { getServices, SERVICE_ICONS, type Service } from "@/lib/services";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -398,17 +398,27 @@ const FALLBACK_FEATURES_SECTION: FeaturesSectionData = {
   title2: T.featuresTitle2,
 };
 
-const STATS = [
+// Fallback stats — shown until they load from the DB.
+const FALLBACK_STATS: Stat[] = [
   {
+    id: -1,
     value: "2.5M+",
     label: { vi: "Thành viên toàn cầu", en: "Global members" },
   },
-  { value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
-  { value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
+  { id: -2, value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
+  { id: -3, value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
   {
+    id: -4,
     value: "45+",
     label: { vi: "Quốc gia giao hàng", en: "Countries shipped" },
   },
+];
+
+// Fallback services — shown until they load from the DB.
+const FALLBACK_SERVICES: Service[] = [
+  { id: -1, icon: "Truck", title: T.serviceShippingTitle, sub: T.serviceShippingSub },
+  { id: -2, icon: "RotateCcw", title: T.serviceReturnsTitle, sub: T.serviceReturnsSub },
+  { id: -3, icon: "Shield", title: T.serviceQualityTitle, sub: T.serviceQualitySub },
 ];
 
 const REVIEWS = [
@@ -480,6 +490,8 @@ export default function Page() {
   const [drops, setDrops] = useState<Drop[]>(FALLBACK_HOMEPAGE_DROPS);
   const [featureCards, setFeatureCards] = useState<FeatureCard[]>(FALLBACK_FEATURE_CARDS);
   const [featuresSection, setFeaturesSection] = useState<FeaturesSectionData>(FALLBACK_FEATURES_SECTION);
+  const [stats, setStats] = useState<Stat[]>(FALLBACK_STATS);
+  const [services, setServices] = useState<Service[]>(FALLBACK_SERVICES);
 
   useEffect(() => {
     getBanners().then((data) => {
@@ -502,6 +514,12 @@ export default function Page() {
     });
     getFeaturesSection().then((data) => {
       if (data) setFeaturesSection(data);
+    });
+    getStats().then((data) => {
+      if (data.length > 0) setStats(data);
+    });
+    getServices().then((data) => {
+      if (data.length > 0) setServices(data);
     });
   }, []);
 
@@ -1132,9 +1150,9 @@ export default function Page() {
             }}
           />
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
-            {STATS.map((s, i) => (
+            {stats.map((s) => (
               <div
-                key={i}
+                key={s.id}
                 className="flex flex-col items-center gap-2 text-center"
               >
                 <span
@@ -1171,39 +1189,28 @@ export default function Page() {
             className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x"
             style={{ "--tw-divide-opacity": "1" } as React.CSSProperties}
           >
-            {[
-              {
-                icon: <Truck size={20} />,
-                title: T.serviceShippingTitle,
-                sub: T.serviceShippingSub,
-              },
-              {
-                icon: <RotateCcw size={20} />,
-                title: T.serviceReturnsTitle,
-                sub: T.serviceReturnsSub,
-              },
-              {
-                icon: <Shield size={20} />,
-                title: T.serviceQualityTitle,
-                sub: T.serviceQualitySub,
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 px-6 py-6 sm:justify-center"
-                style={{ borderColor: C.border }}
-              >
-                <div style={{ color: C.accent }}>{item.icon}</div>
-                <div>
-                  <p className="text-[11px] font-black tracking-[0.2em] text-white">
-                    {item.title[lang]}
-                  </p>
-                  <p className="mt-0.5 text-[12px]" style={{ color: C.muted }}>
-                    {item.sub[lang]}
-                  </p>
+            {services.map((item) => {
+              const Icon = SERVICE_ICONS[item.icon] ?? Truck;
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 px-6 py-6 sm:justify-center"
+                  style={{ borderColor: C.border }}
+                >
+                  <div style={{ color: C.accent }}>
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-black tracking-[0.2em] text-white">
+                      {item.title[lang]}
+                    </p>
+                    <p className="mt-0.5 text-[12px]" style={{ color: C.muted }}>
+                      {item.sub[lang]}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
