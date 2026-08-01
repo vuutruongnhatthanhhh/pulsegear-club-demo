@@ -18,6 +18,7 @@ import { getBanners, type BannerSlide } from "@/lib/banners";
 import { getMarqueeItems, type MarqueeItem } from "@/lib/marquee";
 import { getHomepageCategories, type Category } from "@/lib/categories";
 import { CategoryTile } from "@/components/home/CategoryTile";
+import { getStorySection, type StorySection } from "@/lib/story";
 
 /* ─── SVG social icons (lucide deprecated theirs) ─── */
 const IgIcon = ({ size = 18 }: { size?: number }) => (
@@ -322,6 +323,27 @@ const FALLBACK_CATEGORIES: Category[] = [
   },
 ];
 
+// Fallback "Our Story" section — shown until it loads from the DB.
+const FALLBACK_STORY: StorySection = {
+  eyebrow: T.ourStoryEyebrow,
+  headline: {
+    vi: [T.storyLine1.vi, T.storyLine2.vi, T.storyLine3.vi],
+    en: [T.storyLine1.en, T.storyLine2.en, T.storyLine3.en],
+  },
+  accentIndex: 1,
+  paragraph1: T.storyP1,
+  paragraph2: T.storyP2,
+  ctaLabel: T.readStory,
+  ctaUrl: "/gioi-thieu",
+  image: "/images/home/story.jpg",
+  imageOverlayEyebrow: T.engineeredFor,
+  imageOverlayTitle: T.trainLikePro,
+  stat1Value: "2.5M+",
+  stat1Label: T.statAthletes,
+  stat2Value: "98%",
+  stat2Label: T.statHappy,
+};
+
 const FEATURES = [
   {
     icon: <Zap size={22} />,
@@ -439,6 +461,7 @@ export default function Page() {
 
   const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>(FALLBACK_MARQUEE);
   const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
+  const [story, setStory] = useState<StorySection>(FALLBACK_STORY);
 
   useEffect(() => {
     getBanners().then((data) => {
@@ -449,6 +472,9 @@ export default function Page() {
     });
     getHomepageCategories().then((data) => {
       if (data.length > 0) setCategories(data);
+    });
+    getStorySection().then((data) => {
+      if (data) setStory(data);
     });
   }, []);
 
@@ -764,19 +790,21 @@ export default function Page() {
                 className="mb-4 text-[12px] font-black tracking-[0.45em] uppercase"
                 style={{ color: C.accent }}
               >
-                {T.ourStoryEyebrow[lang]}
+                {story.eyebrow[lang]}
               </p>
               <h2 className="flex flex-col gap-3 text-5xl font-black tracking-[-0.025em] text-white md:text-6xl lg:text-7xl">
-                <span>{T.storyLine1[lang]}</span>
-                <span
-                  style={{
-                    color: C.accent,
-                    textShadow: `0 0 60px ${C.accent}30`,
-                  }}
-                >
-                  {T.storyLine2[lang]}
-                </span>
-                <span>{T.storyLine3[lang]}</span>
+                {story.headline[lang].map((line, i) => (
+                  <span
+                    key={i}
+                    style={
+                      i === story.accentIndex
+                        ? { color: C.accent, textShadow: `0 0 60px ${C.accent}30` }
+                        : undefined
+                    }
+                  >
+                    {line}
+                  </span>
+                ))}
               </h2>
               <div
                 className="my-8 h-[1px] w-14"
@@ -786,25 +814,25 @@ export default function Page() {
                 className="mb-5 max-w-md text-[17px] leading-[1.75]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
-                {T.storyP1[lang]}
+                {story.paragraph1[lang]}
               </p>
               <p
                 className="max-w-md text-[15px] leading-[1.75]"
                 style={{ color: "rgba(255,255,255,0.55)" }}
               >
-                {T.storyP2[lang]}
+                {story.paragraph2[lang]}
               </p>
-              <a
-                href="/gioi-thieu"
+              <Link
+                href={story.ctaUrl}
                 className="group mt-10 inline-flex items-center gap-3 text-[12px] font-black tracking-[0.25em] uppercase text-white"
               >
-                {T.readStory[lang]}{" "}
+                {story.ctaLabel[lang]}{" "}
                 <ArrowRight
                   size={14}
                   className="transition-transform group-hover:translate-x-1"
                   style={{ color: C.accent }}
                 />
-              </a>
+              </Link>
             </div>
 
             <div className="relative">
@@ -813,7 +841,7 @@ export default function Page() {
                 style={{ border: `1px solid ${C.border}` }}
               >
                 <img
-                  src="/images/home/story.jpg"
+                  src={story.image}
                   alt="PULSEGEAR Vận động viên"
                   className="aspect-[4/3] w-full object-cover"
                 />
@@ -829,19 +857,19 @@ export default function Page() {
                     className="text-[10px] font-black tracking-[0.35em] uppercase"
                     style={{ color: C.accent }}
                   >
-                    {T.engineeredFor[lang]}
+                    {story.imageOverlayEyebrow[lang]}
                   </p>
                   <h3 className="mt-1 text-2xl font-black text-white">
-                    {T.trainLikePro[lang]}
+                    {story.imageOverlayTitle[lang]}
                   </h3>
                 </div>
               </div>
 
               {[
-                { val: "2.5M+", label: T.statAthletes, pos: "-left-6 top-6" },
+                { val: story.stat1Value, label: story.stat1Label, pos: "-left-6 top-6" },
                 {
-                  val: "98%",
-                  label: T.statHappy,
+                  val: story.stat2Value,
+                  label: story.stat2Label,
                   pos: "-right-6 bottom-14",
                 },
               ].map((s, i) => (
