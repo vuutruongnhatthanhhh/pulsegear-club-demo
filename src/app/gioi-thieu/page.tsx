@@ -2,19 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Target,
-  Eye,
-  Zap,
-  ShieldCheck,
-  Users,
-  Leaf,
-  ChevronRight,
-} from "lucide-react";
+import { ArrowRight, Target, ChevronRight } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { getAboutHeroSection, FALLBACK_ABOUT_HERO } from "@/lib/aboutHero";
 import { getAboutStorySection, FALLBACK_ABOUT_STORY } from "@/lib/aboutStory";
+import {
+  getMissionVisionSection,
+  FALLBACK_MISSION_VISION,
+  MISSION_VISION_ICONS,
+} from "@/lib/aboutMissionVision";
+import {
+  getValueCards,
+  getValuesSection,
+  VALUE_ICONS,
+  type ValueCard,
+  type ValuesSectionData,
+} from "@/lib/aboutValues";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -48,21 +51,6 @@ const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   breadcrumbAbout: { vi: "Giới thiệu", en: "About Us" },
 
-  missionTitle: { vi: "SỨ MỆNH", en: "MISSION" },
-  missionText: {
-    vi: "Trang bị cho mọi vận động viên — dù chuyên nghiệp hay mới bắt đầu — những sản phẩm hiệu suất cao, bền bỉ và vừa vặn với mọi cơ thể.",
-    en: "Equip every athlete — pro or just starting out — with high-performance gear that's durable and fits every body.",
-  },
-  visionTitle: { vi: "TẦM NHÌN", en: "VISION" },
-  visionText: {
-    vi: "Trở thành thương hiệu trang phục thể thao được tin dùng nhất châu Á, nơi hiệu suất và trách nhiệm với hành tinh song hành.",
-    en: "Become Asia's most trusted performance apparel brand, where performance and planet-friendly manufacturing go hand in hand.",
-  },
-
-  valuesEyebrow: { vi: "GIÁ TRỊ CỐT LÕI", en: "CORE VALUES" },
-  valuesTitle1: { vi: "ĐIỀU CHÚNG TÔI", en: "WHAT WE" },
-  valuesTitle2: { vi: "TIN TƯỞNG", en: "STAND FOR" },
-
   timelineEyebrow: { vi: "HÀNH TRÌNH", en: "OUR JOURNEY" },
   timelineTitle: { vi: "CÁC CỘT MỐC ĐÁNG NHỚ", en: "MILESTONES" },
 
@@ -80,9 +68,11 @@ const T = {
   ctaContact: { vi: "LIÊN HỆ", en: "CONTACT US" },
 };
 
-const VALUES = [
+// Fallback core values — shown until they load from the DB.
+const FALLBACK_VALUES: ValueCard[] = [
   {
-    icon: <Zap size={22} />,
+    id: -1,
+    icon: "Zap",
     title: { vi: "HIỆU SUẤT LÀ ƯU TIÊN", en: "PERFORMANCE FIRST" },
     desc: {
       vi: "Mọi quyết định thiết kế đều bắt đầu từ một câu hỏi: liệu nó có giúp bạn tập luyện tốt hơn không?",
@@ -90,7 +80,8 @@ const VALUES = [
     },
   },
   {
-    icon: <ShieldCheck size={22} />,
+    id: -2,
+    icon: "ShieldCheck",
     title: { vi: "CHẤT LƯỢNG KHÔNG THỎA HIỆP", en: "UNCOMPROMISING QUALITY" },
     desc: {
       vi: "Đường may gia cố, vải kiểm định độc lập. Chúng tôi đứng sau từng sản phẩm rời khỏi kho.",
@@ -98,7 +89,8 @@ const VALUES = [
     },
   },
   {
-    icon: <Users size={22} />,
+    id: -3,
+    icon: "Users",
     title: { vi: "CỘNG ĐỒNG LÀ SỨC MẠNH", en: "COMMUNITY IS POWER" },
     desc: {
       vi: "2.5 triệu vận động viên không chỉ là khách hàng — họ là lý do chúng tôi tiếp tục đổi mới mỗi ngày.",
@@ -106,7 +98,8 @@ const VALUES = [
     },
   },
   {
-    icon: <Leaf size={22} />,
+    id: -4,
+    icon: "Leaf",
     title: { vi: "BỀN VỮNG CHO TƯƠNG LAI", en: "SUSTAINABLE FUTURE" },
     desc: {
       vi: "100% bao bì tái chế, nguồn nguyên liệu có trách nhiệm. Hiệu suất không nên đánh đổi bằng hành tinh.",
@@ -114,6 +107,13 @@ const VALUES = [
     },
   },
 ];
+
+// Fallback core-values section heading — shown until it loads from the DB.
+const FALLBACK_VALUES_SECTION: ValuesSectionData = {
+  eyebrow: { vi: "GIÁ TRỊ CỐT LÕI", en: "CORE VALUES" },
+  title1: { vi: "ĐIỀU CHÚNG TÔI", en: "WHAT WE" },
+  title2: { vi: "TIN TƯỞNG", en: "STAND FOR" },
+};
 
 const TIMELINE = [
   {
@@ -208,6 +208,24 @@ export default function AboutPage() {
   useEffect(() => {
     getAboutStorySection().then((data) => {
       if (data) setStory(data);
+    });
+  }, []);
+
+  const [missionVision, setMissionVision] = useState(FALLBACK_MISSION_VISION);
+  useEffect(() => {
+    getMissionVisionSection().then((data) => {
+      if (data) setMissionVision(data);
+    });
+  }, []);
+
+  const [values, setValues] = useState<ValueCard[]>(FALLBACK_VALUES);
+  const [valuesSection, setValuesSection] = useState<ValuesSectionData>(FALLBACK_VALUES_SECTION);
+  useEffect(() => {
+    getValueCards().then((data) => {
+      if (data.length > 0) setValues(data);
+    });
+    getValuesSection().then((data) => {
+      if (data) setValuesSection(data);
     });
   }, []);
 
@@ -377,43 +395,43 @@ export default function AboutPage() {
         />
         <div className="relative mx-auto max-w-screen-2xl px-8 py-20 md:px-16 lg:px-24">
           <div className="grid gap-4 md:grid-cols-2">
-            {[
-              { Icon: Target, title: T.missionTitle, text: T.missionText },
-              { Icon: Eye, title: T.visionTitle, text: T.visionText },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="group relative overflow-hidden p-9 transition-all duration-300 hover:-translate-y-1"
-                style={{
-                  backgroundColor: C.bg3,
-                  border: `1px solid ${C.border}`,
-                }}
-              >
+            {[missionVision.mission, missionVision.vision].map((item, i) => {
+              const ItemIcon = MISSION_VISION_ICONS[item.icon] ?? Target;
+              return (
                 <div
-                  className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
-                  style={{ backgroundColor: C.accent }}
-                />
-                <div
-                  className="mb-5 inline-flex h-12 w-12 items-center justify-center"
+                  key={i}
+                  className="group relative overflow-hidden p-9 transition-all duration-300 hover:-translate-y-1"
                   style={{
-                    backgroundColor: `${C.accent}15`,
-                    border: `1px solid ${C.accent}30`,
-                    color: C.accent,
+                    backgroundColor: C.bg3,
+                    border: `1px solid ${C.border}`,
                   }}
                 >
-                  <item.Icon size={22} />
+                  <div
+                    className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
+                    style={{ backgroundColor: C.accent }}
+                  />
+                  <div
+                    className="mb-5 inline-flex h-12 w-12 items-center justify-center"
+                    style={{
+                      backgroundColor: `${C.accent}15`,
+                      border: `1px solid ${C.accent}30`,
+                      color: C.accent,
+                    }}
+                  >
+                    <ItemIcon size={22} />
+                  </div>
+                  <h3 className="mb-3 text-xl font-black tracking-[0.02em] text-white">
+                    {item.title[lang]}
+                  </h3>
+                  <p
+                    className="text-[17px] leading-relaxed"
+                    style={{ color: "rgba(255,255,255,0.55)" }}
+                  >
+                    {item.text[lang]}
+                  </p>
                 </div>
-                <h3 className="mb-3 text-xl font-black tracking-[0.02em] text-white">
-                  {item.title[lang]}
-                </h3>
-                <p
-                  className="text-[17px] leading-relaxed"
-                  style={{ color: "rgba(255,255,255,0.55)" }}
-                >
-                  {item.text[lang]}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -437,17 +455,19 @@ export default function AboutPage() {
               className="mb-6 text-[14px] font-black tracking-[0.3em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.valuesEyebrow[lang]}
+              {valuesSection.eyebrow[lang]}
             </p>
             <h2 className="text-4xl font-black tracking-[-0.025em] text-white md:text-5xl">
-              {T.valuesTitle1[lang]}{" "}
-              <span style={{ color: C.accent }}>{T.valuesTitle2[lang]}</span>
+              {valuesSection.title1[lang]}{" "}
+              <span style={{ color: C.accent }}>{valuesSection.title2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {VALUES.map((v, i) => (
+            {values.map((v) => {
+              const ValueIcon = VALUE_ICONS[v.icon] ?? Target;
+              return (
               <div
-                key={i}
+                key={v.id}
                 className="group relative overflow-hidden p-7 transition-all duration-300 hover:-translate-y-1"
                 style={{
                   backgroundColor: C.bg3,
@@ -466,7 +486,7 @@ export default function AboutPage() {
                     color: C.accent,
                   }}
                 >
-                  {v.icon}
+                  <ValueIcon size={22} />
                 </div>
                 <h3 className="mb-3 text-[17px] font-black tracking-[0.08em] text-white">
                   {v.title[lang]}
@@ -482,7 +502,8 @@ export default function AboutPage() {
                   {v.desc[lang]}
                 </p>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
