@@ -1,3 +1,5 @@
+import { supabase } from "./supabaseClient";
+
 export type Drop = {
   id: number;
   badge: { vi: string; en: string };
@@ -9,7 +11,53 @@ export type Drop = {
   href: string;
 };
 
-export const DROPS: Drop[] = [
+type DropRow = {
+  id: number;
+  badge_vi: string;
+  badge_en: string;
+  title: string;
+  sub_vi: string;
+  sub_en: string;
+  tag_vi: string;
+  tag_en: string;
+  glow_color: string;
+  image_url: string | null;
+  href: string;
+};
+
+function mapDrop(row: DropRow): Drop {
+  return {
+    id: row.id,
+    badge: { vi: row.badge_vi, en: row.badge_en },
+    title: row.title,
+    sub: { vi: row.sub_vi, en: row.sub_en },
+    tag: { vi: row.tag_vi, en: row.tag_en },
+    glow: row.glow_color,
+    img: row.image_url ?? "/images/home/drop-apex.jpg",
+    href: row.href,
+  };
+}
+
+/** All drops, in sort order — used by the /bo-suu-tap page. */
+export async function getAllDrops(): Promise<Drop[]> {
+  const { data, error } = await supabase.from("drops").select("*").order("sort_order");
+  if (error || !data) return [];
+  return (data as DropRow[]).map(mapDrop);
+}
+
+/** Only the drops flagged to appear in the homepage "Latest drops" preview. */
+export async function getHomepageDrops(): Promise<Drop[]> {
+  const { data, error } = await supabase
+    .from("drops")
+    .select("*")
+    .eq("show_on_homepage", true)
+    .order("sort_order");
+  if (error || !data) return [];
+  return (data as DropRow[]).map(mapDrop);
+}
+
+// Fallback drops — shown until items load from the DB (and if the table is empty).
+export const FALLBACK_DROPS: Drop[] = [
   {
     id: 1,
     badge: { vi: "VỪA RA MẮT", en: "JUST LAUNCHED" },
@@ -89,3 +137,6 @@ export const DROPS: Drop[] = [
     href: "/phu-kien",
   },
 ];
+
+/** The 3 drops shown on the homepage before the DB loads. */
+export const FALLBACK_HOMEPAGE_DROPS: Drop[] = FALLBACK_DROPS.slice(0, 3);

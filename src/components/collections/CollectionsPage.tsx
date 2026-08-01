@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
-import { DROPS } from "@/lib/drops";
+import { getAllDrops, FALLBACK_DROPS, type Drop } from "@/lib/drops";
 
 const C = {
   bg: "#0A0A0A",
@@ -43,6 +44,13 @@ const T = {
 
 export default function CollectionsPage() {
   const lang = useI18nStore((s) => s.lang);
+  const [drops, setDrops] = useState<Drop[]>(FALLBACK_DROPS);
+
+  useEffect(() => {
+    getAllDrops().then((data) => {
+      if (data.length > 0) setDrops(data);
+    });
+  }, []);
 
   return (
     <div style={{ backgroundColor: C.bg, color: "#fff" }}>
@@ -105,7 +113,7 @@ export default function CollectionsPage() {
       >
         <div className="mx-auto max-w-screen-2xl px-8 py-5 md:px-16 lg:px-24">
           <p className="text-[13px] font-semibold" style={{ color: C.muted }}>
-            {DROPS.length} {T.count[lang]}
+            {drops.length} {T.count[lang]}
           </p>
         </div>
       </section>
@@ -114,7 +122,7 @@ export default function CollectionsPage() {
       <section className="w-full" style={{ backgroundColor: C.bg }}>
         <div className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {DROPS.map((drop) => (
+            {drops.map((drop) => (
               <Link
                 key={drop.id}
                 href={drop.href}

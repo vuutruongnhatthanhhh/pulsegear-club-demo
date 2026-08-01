@@ -13,7 +13,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
-import { DROPS } from "@/lib/drops";
+import { getHomepageDrops, FALLBACK_HOMEPAGE_DROPS, type Drop } from "@/lib/drops";
 import { getBanners, type BannerSlide } from "@/lib/banners";
 import { getMarqueeItems, type MarqueeItem } from "@/lib/marquee";
 import { getHomepageCategories, type Category } from "@/lib/categories";
@@ -462,6 +462,7 @@ export default function Page() {
   const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>(FALLBACK_MARQUEE);
   const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
   const [story, setStory] = useState<StorySection>(FALLBACK_STORY);
+  const [drops, setDrops] = useState<Drop[]>(FALLBACK_HOMEPAGE_DROPS);
 
   useEffect(() => {
     getBanners().then((data) => {
@@ -475,6 +476,9 @@ export default function Page() {
     });
     getStorySection().then((data) => {
       if (data) setStory(data);
+    });
+    getHomepageDrops().then((data) => {
+      if (data.length > 0) setDrops(data);
     });
   }, []);
 
@@ -935,7 +939,7 @@ export default function Page() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {DROPS.slice(0, 3).map((drop, i) => (
+            {drops.map((drop, i) => (
               <Link
                 key={drop.id}
                 href={drop.href}
