@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,6 +13,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
+import { getAboutHeroSection, FALLBACK_ABOUT_HERO } from "@/lib/aboutHero";
+import { getAboutStorySection, FALLBACK_ABOUT_STORY } from "@/lib/aboutStory";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -45,36 +47,6 @@ function Noise({ op = 0.03 }: { op?: number }) {
 const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   breadcrumbAbout: { vi: "Giới thiệu", en: "About Us" },
-  heroEyebrow: { vi: "GIỚI THIỆU", en: "ABOUT US" },
-  heroTitle1: { vi: "SINH RA ĐỂ", en: "BUILT TO" },
-  heroTitle2: { vi: "VƯỢT GIỚI HẠN", en: "BREAK LIMITS" },
-  heroSub: {
-    vi: "PULSEGEAR.CLUB là thương hiệu trang phục thể thao được tạo ra bởi vận động viên, dành cho những người không bao giờ chấp nhận mức trung bình.",
-    en: "PULSEGEAR.CLUB is a performance apparel brand built by athletes, for those who never settle for average.",
-  },
-
-  storyEyebrow: { vi: "CÂU CHUYỆN CỦA CHÚNG TÔI", en: "OUR STORY" },
-  storyTitle: {
-    vi: "TỪ PHÒNG GYM NHỎ ĐẾN THƯƠNG HIỆU TOÀN CẦU",
-    en: "FROM A SMALL GYM TO A GLOBAL BRAND",
-  },
-  storyP1: {
-    vi: "PULSEGEAR.CLUB bắt đầu vào năm 2019 từ một phòng gym nhỏ ở TP.HCM, nơi nhà sáng lập không thể tìm được bất kỳ bộ trang phục tập luyện nào thực sự theo kịp cường độ của mình. Vải quá mỏng, đường may bung sau vài tuần, và không thiết kế nào tôn trọng chuyển động thật của cơ thể.",
-    en: "PULSEGEAR.CLUB started in 2019 in a small gym in Ho Chi Minh City, where our founder couldn't find training gear that actually kept up with his intensity. Fabrics were too thin, seams gave out within weeks, and no design respected the way the body actually moves.",
-  },
-  storyP2: {
-    vi: "Vậy nên chúng tôi tự tạo ra nó. Từng mẫu vải, từng đường may, từng bản thiết kế đều được thử nghiệm trực tiếp trên sàn tập trước khi đến tay khách hàng. Không phòng lab xa xỉ, không quảng cáo hào nhoáng — chỉ có sự ám ảnh với hiệu suất thực sự.",
-    en: "So we built it ourselves. Every fabric, every seam, every pattern was tested on the gym floor before it ever reached a customer. No fancy labs, no flashy ads — just an obsession with real performance.",
-  },
-  storyP3: {
-    vi: "Hôm nay, PULSEGEAR.CLUB đã có mặt tại hơn 45 quốc gia với hơn 2.5 triệu vận động viên tin dùng. Nhưng sứ mệnh vẫn không đổi: tạo ra trang phục xứng đáng với nỗ lực bạn bỏ ra mỗi ngày.",
-    en: "Today, PULSEGEAR.CLUB ships to 45+ countries and is trusted by 2.5M+ athletes. But the mission hasn't changed: build gear worthy of the effort you put in every single day.",
-  },
-  storyQuote: {
-    vi: "“Chúng tôi không thiết kế cho phòng trưng bày. Chúng tôi thiết kế cho hiệp cuối cùng lúc 11 giờ đêm.”",
-    en: "“We don't design for the showroom. We design for the last rep at 11pm.”",
-  },
-  founded: { vi: "THÀNH LẬP", en: "FOUNDED" },
 
   missionTitle: { vi: "SỨ MỆNH", en: "MISSION" },
   missionText: {
@@ -225,6 +197,20 @@ const STATS = [
 export default function AboutPage() {
   const lang = useI18nStore((s) => s.lang);
 
+  const [hero, setHero] = useState(FALLBACK_ABOUT_HERO);
+  useEffect(() => {
+    getAboutHeroSection().then((data) => {
+      if (data) setHero(data);
+    });
+  }, []);
+
+  const [story, setStory] = useState(FALLBACK_ABOUT_STORY);
+  useEffect(() => {
+    getAboutStorySection().then((data) => {
+      if (data) setStory(data);
+    });
+  }, []);
+
   return (
     <div style={{ backgroundColor: C.bg, color: "#fff" }}>
       {/* ════════ HERO ════════ */}
@@ -232,7 +218,7 @@ export default function AboutPage() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(/images/about/hero.jpg)`,
+            backgroundImage: `url(${hero.image})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -271,11 +257,11 @@ export default function AboutPage() {
               className="inline-block h-1.5 w-1.5 animate-pulse rounded-full"
               style={{ backgroundColor: C.accent }}
             />
-            {T.heroEyebrow[lang]}
+            {hero.eyebrow[lang]}
           </div>
 
           <h1 className="max-w-3xl text-[clamp(2.2rem,5.5vw,4.8rem)] font-black leading-[1.1] tracking-[-0.02em]">
-            <span className="block text-white">{T.heroTitle1[lang]}</span>
+            <span className="block text-white">{hero.title1[lang]}</span>
             <span
               className="block"
               style={{
@@ -283,7 +269,7 @@ export default function AboutPage() {
                 textShadow: `0 0 80px ${C.accent}35`,
               }}
             >
-              {T.heroTitle2[lang]}
+              {hero.title2[lang]}
             </span>
           </h1>
 
@@ -291,7 +277,7 @@ export default function AboutPage() {
             className="mt-6 max-w-lg text-[17px] leading-relaxed"
             style={{ color: "rgba(255,255,255,0.6)" }}
           >
-            {T.heroSub[lang]}
+            {hero.subtitle[lang]}
           </p>
         </div>
       </section>
@@ -310,7 +296,7 @@ export default function AboutPage() {
                 style={{ border: `1px solid ${C.border}` }}
               >
                 <img
-                  src="/images/about/story.jpg"
+                  src={story.image}
                   alt="PULSEGEAR founder"
                   className="aspect-[4/5] w-full object-cover"
                 />
@@ -323,7 +309,7 @@ export default function AboutPage() {
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <p className="text-[17px] italic leading-relaxed text-white">
-                    {T.storyQuote[lang]}
+                    {story.quote[lang]}
                   </p>
                 </div>
               </div>
@@ -336,9 +322,9 @@ export default function AboutPage() {
                 }}
               >
                 <div className="text-[10px] font-black tracking-[0.25em] text-black">
-                  {T.founded[lang]}
+                  {story.foundedLabel[lang]}
                 </div>
-                <div className="text-2xl font-black text-black">2019</div>
+                <div className="text-2xl font-black text-black">{story.foundedYear}</div>
               </div>
             </div>
 
@@ -347,29 +333,29 @@ export default function AboutPage() {
                 className="mb-5 text-[13px] font-black tracking-[0.3em] uppercase"
                 style={{ color: C.accent }}
               >
-                {T.storyEyebrow[lang]}
+                {story.eyebrow[lang]}
               </p>
               <h2 className="mb-6 text-2xl font-black leading-tight tracking-[-0.02em] text-white md:text-3xl">
-                {T.storyTitle[lang]}
+                {story.title[lang]}
               </h2>
               <div className="space-y-5">
                 <p
                   className="text-[17px] leading-[1.8]"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  {T.storyP1[lang]}
+                  {story.paragraph1[lang]}
                 </p>
                 <p
                   className="text-[17px] leading-[1.8]"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  {T.storyP2[lang]}
+                  {story.paragraph2[lang]}
                 </p>
                 <p
                   className="text-[17px] leading-[1.8]"
                   style={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  {T.storyP3[lang]}
+                  {story.paragraph3[lang]}
                 </p>
               </div>
             </div>
