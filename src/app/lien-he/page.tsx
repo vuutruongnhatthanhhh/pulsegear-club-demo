@@ -19,6 +19,12 @@ import config from "@/config";
 import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
 import { getMapEmbedUrl, FALLBACK_MAP_EMBED_URL } from "@/lib/mapConfig";
 import { getContactHeroSection, FALLBACK_CONTACT_HERO } from "@/lib/contactHero";
+import {
+  getFaqs,
+  getFaqSection,
+  type FaqItem,
+  type FaqSectionData,
+} from "@/lib/contactFaq";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -109,12 +115,12 @@ const T = {
     en: "Click to get directions",
   },
 
-  faqEyebrow: { vi: "GIẢI ĐÁP NHANH", en: "QUICK ANSWERS" },
-  faqTitle: { vi: "CÂU HỎI THƯỜNG GẶP", en: "FREQUENTLY ASKED" },
 };
 
-const FAQS = [
+// Fallback FAQs — shown until they load from the DB.
+const FALLBACK_FAQS: FaqItem[] = [
   {
+    id: -1,
     q: {
       vi: "Thời gian giao hàng mất bao lâu?",
       en: "How long does shipping take?",
@@ -125,6 +131,7 @@ const FAQS = [
     },
   },
   {
+    id: -2,
     q: {
       vi: "Tôi có thể đổi trả sản phẩm không?",
       en: "Can I return or exchange a product?",
@@ -135,6 +142,7 @@ const FAQS = [
     },
   },
   {
+    id: -3,
     q: { vi: "Làm sao để theo dõi đơn hàng?", en: "How do I track my order?" },
     a: {
       vi: "Sau khi đơn hàng được xác nhận, bạn sẽ nhận mã vận đơn qua email để theo dõi trực tiếp.",
@@ -142,6 +150,7 @@ const FAQS = [
     },
   },
   {
+    id: -4,
     q: {
       vi: "PULSEGEAR.CLUB có cửa hàng offline không?",
       en: "Does PULSEGEAR.CLUB have physical stores?",
@@ -152,6 +161,12 @@ const FAQS = [
     },
   },
 ];
+
+// Fallback FAQ section heading — shown until it loads from the DB.
+const FALLBACK_FAQ_SECTION: FaqSectionData = {
+  eyebrow: { vi: "GIẢI ĐÁP NHANH", en: "QUICK ANSWERS" },
+  title: { vi: "CÂU HỎI THƯỜNG GẶP", en: "FREQUENTLY ASKED" },
+};
 
 const CONTACT_CARDS = [
   { Icon: MapPin, key: "address" as const },
@@ -181,6 +196,17 @@ export default function ContactPage() {
   useEffect(() => {
     getContactHeroSection().then((data) => {
       if (data) setHero(data);
+    });
+  }, []);
+
+  const [faqs, setFaqs] = useState<FaqItem[]>(FALLBACK_FAQS);
+  const [faqSection, setFaqSection] = useState<FaqSectionData>(FALLBACK_FAQ_SECTION);
+  useEffect(() => {
+    getFaqs().then((data) => {
+      if (data.length > 0) setFaqs(data);
+    });
+    getFaqSection().then((data) => {
+      if (data) setFaqSection(data);
     });
   }, []);
 
@@ -597,17 +623,17 @@ export default function ContactPage() {
               className="mb-3 text-[13px] font-black tracking-[0.3em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.faqEyebrow[lang]}
+              {faqSection.eyebrow[lang]}
             </p>
             <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-              {T.faqTitle[lang]}
+              {faqSection.title[lang]}
             </h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            {FAQS.map((f, i) => (
+            {faqs.map((f) => (
               <div
-                key={i}
+                key={f.id}
                 className="p-6"
                 style={{
                   backgroundColor: C.bg3,
