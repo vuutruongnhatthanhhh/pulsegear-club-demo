@@ -18,6 +18,7 @@ import { useI18nStore } from "@/lib/i18n/store";
 import config from "@/config";
 import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
 import { getMapEmbedUrl, FALLBACK_MAP_EMBED_URL } from "@/lib/mapConfig";
+import { getContactHeroSection, FALLBACK_CONTACT_HERO } from "@/lib/contactHero";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -65,26 +66,9 @@ function Noise({ op = 0.03 }: { op?: number }) {
 const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   breadcrumbContact: { vi: "Liên hệ", en: "Contact" },
-  heroEyebrow: { vi: "LIÊN HỆ", en: "CONTACT" },
-  heroTitle1: { vi: "NÓI CHUYỆN", en: "LET'S" },
-  heroTitle2: { vi: "VỚI CHÚNG TÔI", en: "TALK" },
-  heroSub: {
-    vi: "Có câu hỏi về sản phẩm, đơn hàng hay hợp tác? Đội ngũ PULSEGEAR.CLUB luôn sẵn sàng hỗ trợ bạn.",
-    en: "Questions about products, orders, or partnerships? The PULSEGEAR.CLUB team is here to help.",
-  },
 
-  address: { vi: "Địa chỉ", en: "Address" },
-  addressValue: {
-    vi: "123 Đường ABC, Phường XYZ, Quận 1, TP.HCM",
-    en: "123 ABC Street, XYZ Ward, District 1, Ho Chi Minh City",
-  },
   phone: { vi: "Điện thoại", en: "Phone" },
   email: { vi: "Email", en: "Email" },
-  hours: { vi: "Giờ làm việc", en: "Working Hours" },
-  hoursValue: {
-    vi: "T2 – T7: 8:00 – 21:00",
-    en: "Mon – Sat: 8:00 AM – 9:00 PM",
-  },
 
   formEyebrow: { vi: "GỬI TIN NHẮN", en: "SEND A MESSAGE" },
   formTitle: { vi: "CHÚNG TÔI LẮNG NGHE BẠN", en: "WE'RE LISTENING" },
@@ -108,6 +92,14 @@ const T = {
   toastSuccess: {
     vi: "Đã gửi tin nhắn! Chúng tôi sẽ phản hồi sớm nhất.",
     en: "Message sent! We'll get back to you shortly.",
+  },
+  toastRateLimited: {
+    vi: "Bạn đã gửi quá nhiều lần, vui lòng thử lại sau ít phút.",
+    en: "You've sent too many messages — please try again in a few minutes.",
+  },
+  toastError: {
+    vi: "Gửi tin nhắn thất bại, vui lòng thử lại sau.",
+    en: "Failed to send your message, please try again later.",
   },
 
   followUs: { vi: "THEO DÕI CHÚNG TÔI", en: "FOLLOW US" },
@@ -185,14 +177,46 @@ export default function ContactPage() {
     });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [hero, setHero] = useState(FALLBACK_CONTACT_HERO);
+  useEffect(() => {
+    getContactHeroSection().then((data) => {
+      if (data) setHero(data);
+    });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.get("name"),
+          email: data.get("email"),
+          phone: data.get("phone"),
+          subject: data.get("subject"),
+          message: data.get("message"),
+        }),
+      });
+
+      if (res.ok) {
+        toast.success(T.toastSuccess[lang]);
+        form.reset();
+      } else {
+        const body = await res.json().catch(() => ({}));
+        toast.error(
+          body.error === "rate_limited" ? T.toastRateLimited[lang] : T.toastError[lang],
+        );
+      }
+    } catch {
+      toast.error(T.toastError[lang]);
+    } finally {
       setSubmitting(false);
-      toast.success(T.toastSuccess[lang]);
-      (e.target as HTMLFormElement).reset();
-    }, 900);
+    }
   };
 
   return (
@@ -202,7 +226,7 @@ export default function ContactPage() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url(/images/contact/hero.jpg)`,
+            backgroundImage: `url(${hero.image})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -240,16 +264,16 @@ export default function ContactPage() {
               className="inline-block h-1.5 w-1.5 animate-pulse rounded-full"
               style={{ backgroundColor: C.accent }}
             />
-            {T.heroEyebrow[lang]}
+            {hero.eyebrow[lang]}
           </div>
 
           <h1 className="max-w-3xl text-[clamp(2.2rem,5.5vw,4.8rem)] font-black leading-[1.1] tracking-[-0.02em]">
-            <span className="block text-white">{T.heroTitle1[lang]}</span>
+            <span className="block text-white">{hero.title1[lang]}</span>
             <span
               className="block"
               style={{ color: C.accent, textShadow: `0 0 80px ${C.accent}35` }}
             >
-              {T.heroTitle2[lang]}
+              {hero.title2[lang]}
             </span>
           </h1>
 
@@ -257,7 +281,7 @@ export default function ContactPage() {
             className="mt-6 max-w-lg text-[17px] leading-relaxed"
             style={{ color: "rgba(255,255,255,0.6)" }}
           >
-            {T.heroSub[lang]}
+            {hero.subtitle[lang]}
           </p>
         </div>
       </section>
@@ -266,7 +290,14 @@ export default function ContactPage() {
       <section className="relative w-full" style={{ backgroundColor: C.bg }}>
         <div className="relative mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {CONTACT_CARDS.map(({ Icon, key }, i) => (
+            {CONTACT_CARDS.map(({ Icon, key }, i) => {
+              const cardLabel = {
+                address: hero.addressLabel,
+                phone: hero.phoneLabel,
+                email: hero.emailLabel,
+                hours: hero.hoursLabel,
+              }[key];
+              return (
               <div
                 key={i}
                 className="group relative overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1"
@@ -293,11 +324,11 @@ export default function ContactPage() {
                   className="mb-1 text-[13px] font-black tracking-[0.2em] uppercase"
                   style={{ color: C.muted }}
                 >
-                  {T[key][lang]}
+                  {cardLabel[lang]}
                 </div>
                 {key === "address" && (
                   <p className="text-[14px] leading-snug text-white">
-                    {T.addressValue[lang]}
+                    {hero.addressValue[lang]}
                   </p>
                 )}
                 {key === "phone" && (
@@ -318,11 +349,12 @@ export default function ContactPage() {
                 )}
                 {key === "hours" && (
                   <p className="text-[14px] leading-snug text-white">
-                    {T.hoursValue[lang]}
+                    {hero.hoursValue[lang]}
                   </p>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -370,6 +402,7 @@ export default function ContactPage() {
                     </label>
                     <input
                       required
+                      name="name"
                       type="text"
                       placeholder={T.fullNamePh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
@@ -388,6 +421,7 @@ export default function ContactPage() {
                     </label>
                     <input
                       required
+                      name="email"
                       type="email"
                       placeholder={T.emailPh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
@@ -408,6 +442,7 @@ export default function ContactPage() {
                       {T.phone[lang]}
                     </label>
                     <input
+                      name="phone"
                       type="tel"
                       placeholder={T.phonePh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
@@ -425,6 +460,7 @@ export default function ContactPage() {
                       {T.subject[lang]}
                     </label>
                     <input
+                      name="subject"
                       type="text"
                       placeholder={T.subjectPh[lang]}
                       className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
@@ -445,6 +481,7 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     required
+                    name="message"
                     rows={5}
                     placeholder={T.messagePh[lang]}
                     className="w-full resize-none bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"

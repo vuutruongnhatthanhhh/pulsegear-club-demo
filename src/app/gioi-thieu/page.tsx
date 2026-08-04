@@ -25,6 +25,12 @@ import {
   type TimelineSectionData,
 } from "@/lib/aboutTimeline";
 import { getAboutStats, type AboutStat } from "@/lib/aboutStats";
+import {
+  getTeamMembers,
+  getTeamSection,
+  type TeamMember,
+  type TeamSectionData,
+} from "@/lib/aboutTeam";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -57,10 +63,6 @@ function Noise({ op = 0.03 }: { op?: number }) {
 const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   breadcrumbAbout: { vi: "Giới thiệu", en: "About Us" },
-
-  teamEyebrow: { vi: "ĐỘI NGŨ", en: "THE TEAM" },
-  teamTitle1: { vi: "NHỮNG NGƯỜI", en: "THE PEOPLE" },
-  teamTitle2: { vi: "ĐỨNG SAU PULSEGEAR", en: "BEHIND PULSEGEAR" },
 
   ctaTitle1: { vi: "SẴN SÀNG", en: "READY TO" },
   ctaTitle2: { vi: "THAM GIA?", en: "JOIN US?" },
@@ -174,28 +176,40 @@ const FALLBACK_TIMELINE_SECTION: TimelineSectionData = {
   title: { vi: "CÁC CỘT MỐC ĐÁNG NHỚ", en: "MILESTONES" },
 };
 
-const TEAM = [
+// Fallback team members — shown until they load from the DB.
+const FALLBACK_TEAM: TeamMember[] = [
   {
+    id: -1,
     name: "Đăng Khoa",
     role: { vi: "Nhà Sáng Lập & CEO", en: "Founder & CEO" },
     img: "/images/about/team-1.jpg",
   },
   {
+    id: -2,
     name: "Linh Chi",
     role: { vi: "Trưởng Phòng Thiết Kế", en: "Head of Design" },
     img: "/images/about/team-2.jpg",
   },
   {
+    id: -3,
     name: "Quang Huy",
     role: { vi: "Trưởng Phòng Sản Phẩm", en: "Head of Product" },
     img: "/images/about/team-3.jpg",
   },
   {
+    id: -4,
     name: "Bảo Trân",
     role: { vi: "Quản Lý Cộng Đồng", en: "Community Lead" },
     img: "/images/about/team-4.jpg",
   },
 ];
+
+// Fallback team section heading — shown until it loads from the DB.
+const FALLBACK_TEAM_SECTION: TeamSectionData = {
+  eyebrow: { vi: "ĐỘI NGŨ", en: "THE TEAM" },
+  title1: { vi: "NHỮNG NGƯỜI", en: "THE PEOPLE" },
+  title2: { vi: "ĐỨNG SAU PULSEGEAR", en: "BEHIND PULSEGEAR" },
+};
 
 // Fallback stats strip — shown until it loads from the DB.
 const FALLBACK_STATS: AboutStat[] = [
@@ -263,6 +277,17 @@ export default function AboutPage() {
   useEffect(() => {
     getAboutStats().then((data) => {
       if (data.length > 0) setStats(data);
+    });
+  }, []);
+
+  const [team, setTeam] = useState<TeamMember[]>(FALLBACK_TEAM);
+  const [teamSection, setTeamSection] = useState<TeamSectionData>(FALLBACK_TEAM_SECTION);
+  useEffect(() => {
+    getTeamMembers().then((data) => {
+      if (data.length > 0) setTeam(data);
+    });
+    getTeamSection().then((data) => {
+      if (data) setTeamSection(data);
     });
   }, []);
 
@@ -678,16 +703,16 @@ export default function AboutPage() {
               className="mb-5 text-[15px] font-black tracking-[0.3em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.teamEyebrow[lang]}
+              {teamSection.eyebrow[lang]}
             </p>
             <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-              {T.teamTitle1[lang]}{" "}
-              <span style={{ color: C.accent }}>{T.teamTitle2[lang]}</span>
+              {teamSection.title1[lang]}{" "}
+              <span style={{ color: C.accent }}>{teamSection.title2[lang]}</span>
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {TEAM.map((m, i) => (
-              <div key={i} className="group relative overflow-hidden">
+            {team.map((m) => (
+              <div key={m.id} className="group relative overflow-hidden">
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   <img
                     src={m.img}
