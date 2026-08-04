@@ -18,6 +18,13 @@ import {
   type ValueCard,
   type ValuesSectionData,
 } from "@/lib/aboutValues";
+import {
+  getTimelineItems,
+  getTimelineSection,
+  type TimelineItem,
+  type TimelineSectionData,
+} from "@/lib/aboutTimeline";
+import { getAboutStats, type AboutStat } from "@/lib/aboutStats";
 
 /* ─── TOKENS ─── */
 const C = {
@@ -50,9 +57,6 @@ function Noise({ op = 0.03 }: { op?: number }) {
 const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   breadcrumbAbout: { vi: "Giới thiệu", en: "About Us" },
-
-  timelineEyebrow: { vi: "HÀNH TRÌNH", en: "OUR JOURNEY" },
-  timelineTitle: { vi: "CÁC CỘT MỐC ĐÁNG NHỚ", en: "MILESTONES" },
 
   teamEyebrow: { vi: "ĐỘI NGŨ", en: "THE TEAM" },
   teamTitle1: { vi: "NHỮNG NGƯỜI", en: "THE PEOPLE" },
@@ -115,8 +119,10 @@ const FALLBACK_VALUES_SECTION: ValuesSectionData = {
   title2: { vi: "TIN TƯỞNG", en: "STAND FOR" },
 };
 
-const TIMELINE = [
+// Fallback timeline milestones — shown until they load from the DB.
+const FALLBACK_TIMELINE: TimelineItem[] = [
   {
+    id: -1,
     year: "2019",
     title: { vi: "Khởi đầu tại TP.HCM", en: "Founded in Ho Chi Minh City" },
     desc: {
@@ -125,6 +131,7 @@ const TIMELINE = [
     },
   },
   {
+    id: -2,
     year: "2020",
     title: { vi: "Ra mắt Seamless V1", en: "Launched Seamless V1" },
     desc: {
@@ -133,6 +140,7 @@ const TIMELINE = [
     },
   },
   {
+    id: -3,
     year: "2021",
     title: { vi: "Mở rộng quốc tế", en: "Going International" },
     desc: {
@@ -141,6 +149,7 @@ const TIMELINE = [
     },
   },
   {
+    id: -4,
     year: "2023",
     title: { vi: "1 triệu thành viên", en: "1 Million Members" },
     desc: {
@@ -149,6 +158,7 @@ const TIMELINE = [
     },
   },
   {
+    id: -5,
     year: "2025",
     title: { vi: "2.5M+ và tiếp tục phát triển", en: "2.5M+ and Growing" },
     desc: {
@@ -157,6 +167,12 @@ const TIMELINE = [
     },
   },
 ];
+
+// Fallback timeline section heading — shown until it loads from the DB.
+const FALLBACK_TIMELINE_SECTION: TimelineSectionData = {
+  eyebrow: { vi: "HÀNH TRÌNH", en: "OUR JOURNEY" },
+  title: { vi: "CÁC CỘT MỐC ĐÁNG NHỚ", en: "MILESTONES" },
+};
 
 const TEAM = [
   {
@@ -181,17 +197,20 @@ const TEAM = [
   },
 ];
 
-const STATS = [
+// Fallback stats strip — shown until it loads from the DB.
+const FALLBACK_STATS: AboutStat[] = [
   {
+    id: -1,
     value: "2.5M+",
     label: { vi: "Vận động viên toàn cầu", en: "Global athletes" },
   },
   {
+    id: -2,
     value: "45+",
     label: { vi: "Quốc gia giao hàng", en: "Countries shipped" },
   },
-  { value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
-  { value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
+  { id: -3, value: "6+", label: { vi: "Năm đổi mới", en: "Years of innovation" } },
+  { id: -4, value: "98%", label: { vi: "Tỷ lệ hài lòng", en: "Satisfaction rate" } },
 ];
 
 export default function AboutPage() {
@@ -226,6 +245,24 @@ export default function AboutPage() {
     });
     getValuesSection().then((data) => {
       if (data) setValuesSection(data);
+    });
+  }, []);
+
+  const [timeline, setTimeline] = useState<TimelineItem[]>(FALLBACK_TIMELINE);
+  const [timelineSection, setTimelineSection] = useState<TimelineSectionData>(FALLBACK_TIMELINE_SECTION);
+  useEffect(() => {
+    getTimelineItems().then((data) => {
+      if (data.length > 0) setTimeline(data);
+    });
+    getTimelineSection().then((data) => {
+      if (data) setTimelineSection(data);
+    });
+  }, []);
+
+  const [stats, setStats] = useState<AboutStat[]>(FALLBACK_STATS);
+  useEffect(() => {
+    getAboutStats().then((data) => {
+      if (data.length > 0) setStats(data);
     });
   }, []);
 
@@ -520,10 +557,10 @@ export default function AboutPage() {
               className="mb-4 text-[13px] font-black tracking-[0.4em] uppercase"
               style={{ color: C.accent }}
             >
-              {T.timelineEyebrow[lang]}
+              {timelineSection.eyebrow[lang]}
             </p>
             <h2 className="text-3xl font-black tracking-[-0.02em] text-white md:text-4xl">
-              {T.timelineTitle[lang]}
+              {timelineSection.title[lang]}
             </h2>
           </div>
 
@@ -533,8 +570,8 @@ export default function AboutPage() {
               style={{ backgroundColor: C.border }}
             />
             <div className="space-y-8">
-              {TIMELINE.map((item, i) => (
-                <div key={i} className="relative flex gap-6 sm:gap-8">
+              {timeline.map((item) => (
+                <div key={item.id} className="relative flex gap-6 sm:gap-8">
                   <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-center">
                     <div
                       className="flex h-14 w-14 items-center justify-center text-[11px] font-black"
@@ -600,9 +637,9 @@ export default function AboutPage() {
             }}
           />
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
-            {STATS.map((s, i) => (
+            {stats.map((s) => (
               <div
-                key={i}
+                key={s.id}
                 className="flex flex-col items-center gap-2 text-center"
               >
                 <span
