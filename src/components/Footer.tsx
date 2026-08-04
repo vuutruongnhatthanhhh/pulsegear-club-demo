@@ -5,9 +5,10 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Instagram, Youtube, Facebook, ArrowRight } from "lucide-react";
 import { useI18nStore, type Lang } from "@/lib/i18n/store";
-import { CATEGORY_META } from "@/lib/products";
+import { getAllCategories } from "@/lib/categories";
 import { getSocialConfig, FALLBACK_SOCIAL_CONFIG } from "@/lib/socialConfig";
 import { getMapEmbedUrl, FALLBACK_MAP_EMBED_URL } from "@/lib/mapConfig";
+import { getFooterConfig, FALLBACK_FOOTER_CONFIG } from "@/lib/footerConfig";
 
 /* =========================================================
    TOKENS
@@ -21,6 +22,19 @@ const TEXT_MUTED = "rgba(255,255,255,0.4)";
 function safeLang(lang: Lang): Lang {
   return lang === "vi" || lang === "en" ? lang : "vi";
 }
+
+type CategoryLink = { vi: string; en: string; href: string };
+
+// Fallback categories — shown until they load from the DB.
+const FALLBACK_CATEGORY_LINKS: CategoryLink[] = [
+  { vi: "Đồ Nam", en: "Men", href: "/do-nam" },
+  { vi: "Đồ Nữ", en: "Women", href: "/do-nu" },
+  { vi: "Liền Mạch", en: "Seamless", href: "/lien-mach" },
+  { vi: "Áo Khoác", en: "Jackets", href: "/ao-khoac" },
+  { vi: "Quần Short", en: "Shorts", href: "/quan-short" },
+  { vi: "Phụ Kiện", en: "Accessories", href: "/phu-kien" },
+  { vi: "Giảm Giá", en: "Sale", href: "/giam-gia" },
+];
 
 /* =========================================================
    TIKTOK ICON (lucide-react has no TikTok glyph)
@@ -105,6 +119,22 @@ const Footer = () => {
     });
   }, []);
 
+  const [categoryLinks, setCategoryLinks] = useState<CategoryLink[]>(FALLBACK_CATEGORY_LINKS);
+  useEffect(() => {
+    getAllCategories().then((data) => {
+      if (data.length > 0) {
+        setCategoryLinks(data.map((c) => ({ vi: c.label.vi, en: c.label.en, href: c.href })));
+      }
+    });
+  }, []);
+
+  const [footerInfo, setFooterInfo] = useState(FALLBACK_FOOTER_CONFIG);
+  useEffect(() => {
+    getFooterConfig().then((data) => {
+      if (data) setFooterInfo(data);
+    });
+  }, []);
+
   const staticLinks = [
     { href: "/gioi-thieu", vi: "Giới thiệu", en: "About Us" },
     { href: "/lien-he", vi: "Liên hệ", en: "Contact" },
@@ -112,8 +142,6 @@ const Footer = () => {
     { href: "/bo-suu-tap", vi: "Bộ sưu tập", en: "Collections" },
     { href: "/gio-hang", vi: "Giỏ hàng", en: "Cart" },
   ];
-
-  const categoryLinks = Object.values(CATEGORY_META);
 
   const socialLinks = [
     {
@@ -226,9 +254,9 @@ const Footer = () => {
               className="space-y-2 text-[13px] leading-relaxed"
               style={{ color: TEXT_MUTED }}
             >
-              <p>📍 123 Đường ABC, Phường XYZ, Quận 1, TP.HCM</p>
-              <p>📞 0812 303 471</p>
-              <p>✉️ hello@pulsegear.club</p>
+              <p>📍 {footerInfo.address}</p>
+              <p>📞 {footerInfo.phone}</p>
+              <p>✉️ {footerInfo.email}</p>
             </div>
 
             {/* Socials */}
@@ -279,8 +307,8 @@ const Footer = () => {
             <FooterHeading>{L === "vi" ? "Danh mục" : "Categories"}</FooterHeading>
             <ul className="space-y-3">
               {categoryLinks.map((cat) => (
-                <FooterLink key={cat.slug} href={`/${cat.slug}`}>
-                  {cat.title[lang]}
+                <FooterLink key={cat.href} href={cat.href}>
+                  {L === "vi" ? cat.vi : cat.en}
                 </FooterLink>
               ))}
             </ul>
