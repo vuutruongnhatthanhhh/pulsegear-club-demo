@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
 import { useAuthStore } from "@/lib/auth/store";
 import { changePassword, translateAuthError } from "@/lib/auth/actions";
+import { PasswordInput } from "@/components/PasswordInput";
 
 const C = {
   bg: "#0A0A0A",
@@ -55,7 +55,6 @@ export default function DoiMatKhauPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -161,15 +160,11 @@ export default function DoiMatKhauPage() {
               >
                 {T.currentPassword[lang]}
               </label>
-              <input
+              <PasswordInput
                 required
-                type={showPw ? "text" : "password"}
                 value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
+                onChange={setCurrentPassword}
                 autoComplete="current-password"
-                className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
               />
             </div>
 
@@ -180,28 +175,12 @@ export default function DoiMatKhauPage() {
               >
                 {T.newPassword[lang]}
               </label>
-              <div
-                className="flex items-center"
-                style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
-              >
-                <input
-                  required
-                  type={showPw ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  className="px-3 transition-colors hover:text-white"
-                  style={{ color: C.muted }}
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <PasswordInput
+                required
+                value={newPassword}
+                onChange={setNewPassword}
+                autoComplete="new-password"
+              />
             </div>
 
             <div>
@@ -211,15 +190,11 @@ export default function DoiMatKhauPage() {
               >
                 {T.confirmNewPassword[lang]}
               </label>
-              <input
+              <PasswordInput
                 required
-                type={showPw ? "text" : "password"}
                 value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="••••••••"
+                onChange={setConfirmNewPassword}
                 autoComplete="new-password"
-                className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
               />
             </div>
 

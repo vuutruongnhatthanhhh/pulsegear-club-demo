@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuthStore } from "@/lib/auth/store";
 import { translateAuthError } from "@/lib/auth/actions";
+import { PasswordInput } from "@/components/PasswordInput";
 
 const C = {
   bg: "#0A0A0A",
@@ -52,7 +52,6 @@ export default function ResetPasswordPage() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [hasRecoverySession, setHasRecoverySession] = useState(false);
 
@@ -157,27 +156,12 @@ export default function ResetPasswordPage() {
                 >
                   {T.password[lang]}
                 </label>
-                <div
-                  className="flex items-center"
-                  style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
-                >
-                  <input
-                    required
-                    type={showPw ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw((v) => !v)}
-                    className="px-3 transition-colors hover:text-white"
-                    style={{ color: C.muted }}
-                  >
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
+                <PasswordInput
+                  required
+                  value={password}
+                  onChange={setPassword}
+                  autoComplete="new-password"
+                />
               </div>
 
               <div>
@@ -187,14 +171,11 @@ export default function ResetPasswordPage() {
                 >
                   {T.confirmPassword[lang]}
                 </label>
-                <input
+                <PasswordInput
                   required
-                  type={showPw ? "text" : "password"}
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                  style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
+                  onChange={setConfirmPassword}
+                  autoComplete="new-password"
                 />
               </div>
 

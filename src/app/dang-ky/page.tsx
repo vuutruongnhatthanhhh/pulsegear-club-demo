@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, MailCheck } from "lucide-react";
+import { MailCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
+import { PasswordInput } from "@/components/PasswordInput";
 import {
   signUpWithEmail,
   signInWithGoogle,
@@ -83,7 +84,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
@@ -281,30 +281,12 @@ export default function RegisterPage() {
               >
                 {T.password[lang]}
               </label>
-              <div
-                className="flex items-center"
-                style={{
-                  border: `1px solid ${C.border}`,
-                  backgroundColor: "#141414",
-                }}
-              >
-                <input
-                  required
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw((v) => !v)}
-                  className="px-3 transition-colors hover:text-white"
-                  style={{ color: C.muted }}
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <PasswordInput
+                required
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+              />
             </div>
 
             <div>
@@ -314,17 +296,11 @@ export default function RegisterPage() {
               >
                 {T.confirmPassword[lang]}
               </label>
-              <input
+              <PasswordInput
                 required
-                type={showPw ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-transparent px-4 py-3 text-[14px] text-white placeholder-white/20 outline-none"
-                style={{
-                  border: `1px solid ${C.border}`,
-                  backgroundColor: "#141414",
-                }}
+                onChange={setConfirmPassword}
+                autoComplete="new-password"
               />
             </div>
 
