@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  translateAuthError,
+} from "@/lib/auth/actions";
 
 const C = {
   bg: "#0A0A0A",
@@ -48,19 +55,44 @@ const T = {
   password: { vi: "Mật khẩu", en: "Password" },
   forgot: { vi: "Quên mật khẩu?", en: "Forgot password?" },
   submit: { vi: "ĐĂNG NHẬP", en: "SIGN IN" },
+  submitting: { vi: "ĐANG ĐĂNG NHẬP...", en: "SIGNING IN..." },
   noAccount: { vi: "Chưa có tài khoản?", en: "Don't have an account?" },
   register: { vi: "Đăng ký ngay", en: "Sign up" },
+  success: { vi: "Đăng nhập thành công!", en: "Signed in successfully!" },
 };
 
 export default function LoginPage() {
   const lang = useI18nStore((s) => s.lang);
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    const { error } = await signInWithEmail(email, password);
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(translateAuthError(error.message, lang));
+      return;
+    }
+
+    toast.success(T.success[lang]);
+    router.push("/");
+  };
+
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setGoogleLoading(false);
+      toast.error(translateAuthError(error.message, lang));
+    }
   };
 
   return (
@@ -113,7 +145,9 @@ export default function LoginPage() {
 
           <button
             type="button"
-            className="mt-7 flex w-full items-center justify-center gap-3 py-3 text-[13px] font-bold text-white transition-colors hover:bg-white/5"
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="mt-7 flex w-full items-center justify-center gap-3 py-3 text-[13px] font-bold text-white transition-colors hover:bg-white/5 disabled:opacity-60"
             style={{ border: `1px solid ${C.border}` }}
           >
             <GoogleIcon size={16} />
@@ -203,10 +237,13 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="group relative mt-2 flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
+              disabled={submitting}
+              className="group relative mt-2 flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-60"
               style={{ backgroundColor: C.accent }}
             >
-              <span className="relative z-10">{T.submit[lang]}</span>
+              <span className="relative z-10">
+                {submitting ? T.submitting[lang] : T.submit[lang]}
+              </span>
               <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
             </button>
           </form>

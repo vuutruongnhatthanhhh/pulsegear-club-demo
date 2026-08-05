@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, MailCheck } from "lucide-react";
+import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
+import {
+  signUpWithEmail,
+  signInWithGoogle,
+  translateAuthError,
+} from "@/lib/auth/actions";
 
 const C = {
   bg: "#0A0A0A",
@@ -49,8 +55,25 @@ const T = {
   password: { vi: "Mật khẩu", en: "Password" },
   confirmPassword: { vi: "Xác nhận mật khẩu", en: "Confirm password" },
   submit: { vi: "TẠO TÀI KHOẢN", en: "CREATE ACCOUNT" },
+  submitting: { vi: "ĐANG TẠO...", en: "CREATING..." },
   haveAccount: { vi: "Đã có tài khoản?", en: "Already have an account?" },
   login: { vi: "Đăng nhập", en: "Sign in" },
+  passwordMismatch: {
+    vi: "Mật khẩu xác nhận không khớp.",
+    en: "Passwords don't match.",
+  },
+  checkEmailEyebrow: { vi: "ĐĂNG KÝ THÀNH CÔNG", en: "REGISTRATION SUCCESSFUL" },
+  checkEmailTitle1: { vi: "KIỂM TRA", en: "CHECK YOUR" },
+  checkEmailTitle2: { vi: "EMAIL CỦA BẠN", en: "EMAIL" },
+  checkEmailSub: {
+    vi: "Chúng tôi đã gửi liên kết xác nhận tới",
+    en: "We've sent a confirmation link to",
+  },
+  checkEmailHint: {
+    vi: "Vui lòng kiểm tra hộp thư đến — và cả thư mục Spam/Thư rác — rồi nhấn vào liên kết để kích hoạt tài khoản trước khi đăng nhập.",
+    en: "Please check your inbox — and your Spam/Junk folder — then click the link to activate your account before signing in.",
+  },
+  backToLogin: { vi: "Quay lại đăng nhập", en: "Back to sign in" },
 };
 
 export default function RegisterPage() {
@@ -61,9 +84,36 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error(T.passwordMismatch[lang]);
+      return;
+    }
+
+    setSubmitting(true);
+    const { error } = await signUpWithEmail(fullName, email, password);
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(translateAuthError(error, lang));
+      return;
+    }
+
+    setRegisteredEmail(email);
+  };
+
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setGoogleLoading(false);
+      toast.error(translateAuthError(error.message, lang));
+    }
   };
 
   return (
@@ -97,6 +147,45 @@ export default function RegisterPage() {
           className="p-8"
           style={{ backgroundColor: C.bg3, border: `1px solid ${C.border}` }}
         >
+          {registeredEmail ? (
+            <div className="text-center">
+              <div
+                className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full"
+                style={{ backgroundColor: `${C.accent}18`, border: `1px solid ${C.accent}45` }}
+              >
+                <MailCheck size={24} style={{ color: C.accent }} />
+              </div>
+              <p
+                className="mb-3 text-center text-[12px] font-black tracking-[0.3em] uppercase"
+                style={{ color: C.accent }}
+              >
+                {T.checkEmailEyebrow[lang]}
+              </p>
+              <h1 className="text-center text-2xl font-black tracking-[-0.02em] text-white">
+                {T.checkEmailTitle1[lang]}{" "}
+                <span style={{ color: C.accent }}>{T.checkEmailTitle2[lang]}</span>
+              </h1>
+              <p
+                className="mx-auto mt-4 text-[14px] leading-relaxed"
+                style={{ color: C.muted }}
+              >
+                {T.checkEmailSub[lang]} <span className="font-semibold text-white">{registeredEmail}</span>
+              </p>
+              <p
+                className="mx-auto mt-3 text-[13px] leading-relaxed"
+                style={{ color: C.muted }}
+              >
+                {T.checkEmailHint[lang]}
+              </p>
+              <Link
+                href="/dang-nhap"
+                className="mt-7 inline-block font-bold text-white underline underline-offset-4 transition-colors hover:text-white/80"
+              >
+                {T.backToLogin[lang]}
+              </Link>
+            </div>
+          ) : (
+            <>
           <p
             className="mb-3 text-center text-[12px] font-black tracking-[0.3em] uppercase"
             style={{ color: C.accent }}
@@ -116,7 +205,9 @@ export default function RegisterPage() {
 
           <button
             type="button"
-            className="mt-7 flex w-full items-center justify-center gap-3 py-3 text-[13px] font-bold text-white transition-colors hover:bg-white/5"
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="mt-7 flex w-full items-center justify-center gap-3 py-3 text-[13px] font-bold text-white transition-colors hover:bg-white/5 disabled:opacity-60"
             style={{ border: `1px solid ${C.border}` }}
           >
             <GoogleIcon size={16} />
@@ -239,10 +330,13 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="group relative mt-2 flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
+              disabled={submitting}
+              className="group relative mt-2 flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-60"
               style={{ backgroundColor: C.accent }}
             >
-              <span className="relative z-10">{T.submit[lang]}</span>
+              <span className="relative z-10">
+                {submitting ? T.submitting[lang] : T.submit[lang]}
+              </span>
               <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
             </button>
           </form>
@@ -259,6 +353,8 @@ export default function RegisterPage() {
               {T.login[lang]}
             </Link>
           </p>
+            </>
+          )}
         </div>
       </div>
     </div>

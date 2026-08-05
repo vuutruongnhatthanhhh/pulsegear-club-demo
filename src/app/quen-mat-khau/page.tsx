@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { useI18nStore } from "@/lib/i18n/store";
+import { resetPasswordForEmail, translateAuthError } from "@/lib/auth/actions";
 
 const C = {
   bg: "#0A0A0A",
@@ -23,16 +25,32 @@ const T = {
   },
   email: { vi: "Email", en: "Email" },
   submit: { vi: "GỬI LIÊN KẾT", en: "SEND RESET LINK" },
+  submitting: { vi: "ĐANG GỬI...", en: "SENDING..." },
   backToLogin: { vi: "Quay lại đăng nhập", en: "Back to sign in" },
+  success: {
+    vi: "Đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư đến (và cả thư mục Spam/Thư rác).",
+    en: "Reset link sent. Please check your inbox (and Spam/Junk folder).",
+  },
 };
 
 export default function ForgotPasswordPage() {
   const lang = useI18nStore((s) => s.lang);
 
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    const { error } = await resetPasswordForEmail(email);
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(translateAuthError(error, lang));
+      return;
+    }
+
+    toast.success(T.success[lang]);
   };
 
   return (
@@ -107,10 +125,13 @@ export default function ForgotPasswordPage() {
 
             <button
               type="submit"
-              className="group relative flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
+              disabled={submitting}
+              className="group relative flex w-full items-center justify-center overflow-hidden py-3.5 text-[12px] font-black tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-60"
               style={{ backgroundColor: C.accent }}
             >
-              <span className="relative z-10">{T.submit[lang]}</span>
+              <span className="relative z-10">
+                {submitting ? T.submitting[lang] : T.submit[lang]}
+              </span>
               <div className="absolute inset-0 -skew-x-12 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
             </button>
           </form>

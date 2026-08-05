@@ -1,33 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { supabase } from "@/lib/supabaseClient";
 import config from "@/config";
-
-// In-memory sliding-window rate limiter — resets on server restart and is
-// per-process (fine for this app's single Node/PM2 deployment, not distributed).
-const RATE_LIMIT_MAX = 3;
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const rateLimitHits = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const hits = (rateLimitHits.get(ip) ?? []).filter(
-    (t) => now - t < RATE_LIMIT_WINDOW_MS,
-  );
-  if (hits.length >= RATE_LIMIT_MAX) {
-    rateLimitHits.set(ip, hits);
-    return true;
-  }
-  hits.push(now);
-  rateLimitHits.set(ip, hits);
-  return false;
-}
-
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return request.headers.get("x-real-ip") ?? "unknown";
-}
+import { getTransporter, hasSmtpConfig } from "@/lib/mailer";
+import { isRateLimited, getClientIp } from "@/lib/rateLimit";
 
 async function getReceiverEmail(): Promise<string> {
   const { data } = await supabase
@@ -41,7 +16,7 @@ async function getReceiverEmail(): Promise<string> {
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  if (isRateLimited(ip)) {
+  if (isRateLimited(`contact:${ip}`, 3, 15 * 60 * 1000)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
@@ -68,22 +43,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!hasSmtpConfig()) {
     return NextResponse.json({ error: "send_failed" }, { status: 500 });
   }
 
   try {
     const receiverEmail = await getReceiverEmail();
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const transporter = getTransporter();
 
     await transporter.sendMail({
       from: `"${config.companyName} - Website" <${process.env.SMTP_USER}>`,

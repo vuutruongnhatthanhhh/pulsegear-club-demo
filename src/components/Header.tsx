@@ -9,6 +9,8 @@ import { useI18nStore, type Lang } from "@/lib/i18n/store";
 import { useCartStore, cartCount } from "@/lib/cart/store";
 import { useFlyStore } from "@/lib/cart/flyStore";
 import { getAllCategories } from "@/lib/categories";
+import { useAuthStore } from "@/lib/auth/store";
+import { signOut } from "@/lib/auth/actions";
 
 /* =========================================================
    DESIGN TOKENS
@@ -48,6 +50,12 @@ const TXT = {
   close: { vi: "Đóng", en: "Close" },
   home: { vi: "Trang Chủ", en: "Home" },
   language: { vi: "Ngôn Ngữ", en: "Language" },
+  login: { vi: "Đăng nhập", en: "Sign in" },
+  register: { vi: "Đăng ký", en: "Sign up" },
+  logout: { vi: "Đăng xuất", en: "Sign out" },
+  account: { vi: "Tài khoản", en: "Account" },
+  myAccount: { vi: "Thông tin cá nhân", en: "Personal info" },
+  changePassword: { vi: "Đổi mật khẩu", en: "Change password" },
 };
 
 /* =========================================================
@@ -75,6 +83,17 @@ const Header: React.FC = () => {
   const [isLangOpen, setLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement | null>(null);
   const langBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  const { user } = useAuthStore();
+  const [isAccountOpen, setAccountOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const accountBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  const handleSignOut = async () => {
+    setAccountOpen(false);
+    await signOut();
+    router.push("/dang-nhap");
+  };
 
   const [categoryNavItems, setCategoryNavItems] = useState<NavItem[]>(FALLBACK_CATEGORY_NAV_ITEMS);
   const NAV_ITEMS: NavItem[] = [...categoryNavItems, NEWS_NAV_ITEM];
@@ -113,6 +132,7 @@ const Header: React.FC = () => {
     setMobileMenuOpen(false);
     setLangOpen(false);
     setIsSearchOpen(false);
+    setAccountOpen(false);
   }, [pathname]);
 
   // Click outside lang menu
@@ -124,6 +144,21 @@ const Header: React.FC = () => {
         !langBtnRef.current?.contains(e.target as Node)
       ) {
         setLangOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  // Click outside account menu
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(e.target as Node) &&
+        !accountBtnRef.current?.contains(e.target as Node)
+      ) {
+        setAccountOpen(false);
       }
     };
     document.addEventListener("mousedown", onClick);
@@ -266,14 +301,64 @@ const Header: React.FC = () => {
 
             {/* Account + Cart */}
             <div className="flex items-center gap-1 shrink-0">
-              <Link
-                href="/dang-nhap"
-                className="flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
-                style={{ color: TEXT_MUTED }}
-                aria-label="Account"
-              >
-                <User size={19} />
-              </Link>
+              {user ? (
+                <div className="relative">
+                  <button
+                    ref={accountBtnRef}
+                    type="button"
+                    onClick={() => setAccountOpen((v) => !v)}
+                    className="flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
+                    style={{ color: isAccountOpen ? "white" : TEXT_MUTED }}
+                    aria-label="Account"
+                  >
+                    <User size={19} />
+                  </button>
+                  {isAccountOpen && (
+                    <div
+                      ref={accountMenuRef}
+                      className="absolute right-0 top-full z-[10000] mt-2 w-56 py-2"
+                      style={{ backgroundColor: "#141414", border: `1px solid ${BORDER}` }}
+                    >
+                      <p
+                        className="truncate px-4 pb-2 pt-1 text-[12px]"
+                        style={{ color: TEXT_MUTED }}
+                      >
+                        {user.email}
+                      </p>
+                      <Link
+                        href="/tai-khoan"
+                        onClick={() => setAccountOpen(false)}
+                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
+                      >
+                        {TXT.myAccount[lang]}
+                      </Link>
+                      <Link
+                        href="/tai-khoan/doi-mat-khau"
+                        onClick={() => setAccountOpen(false)}
+                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
+                      >
+                        {TXT.changePassword[lang]}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
+                      >
+                        {TXT.logout[lang]}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/dang-nhap"
+                  className="flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
+                  style={{ color: TEXT_MUTED }}
+                  aria-label="Account"
+                >
+                  <User size={19} />
+                </Link>
+              )}
               <Link
                 href="/gio-hang"
                 className="relative flex h-10 w-10 items-center justify-center transition-colors hover:text-white"
@@ -379,14 +464,29 @@ const Header: React.FC = () => {
               >
                 {isSearchOpen ? <X size={17} /> : <Search size={17} />}
               </button>
-              <Link
-                href="/dang-nhap"
-                className="flex h-9 w-9 items-center justify-center transition-colors"
-                style={{ color: TEXT_MUTED }}
-                aria-label="Account"
-              >
-                <User size={18} />
-              </Link>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setMobileMenuOpen(true);
+                  }}
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: TEXT_MUTED }}
+                  aria-label="Account"
+                >
+                  <User size={18} />
+                </button>
+              ) : (
+                <Link
+                  href="/dang-nhap"
+                  className="flex h-9 w-9 items-center justify-center transition-colors"
+                  style={{ color: TEXT_MUTED }}
+                  aria-label="Account"
+                >
+                  <User size={18} />
+                </Link>
+              )}
               <Link
                 href="/gio-hang"
                 className="relative flex h-9 w-9 items-center justify-center transition-colors"
@@ -512,6 +612,61 @@ const Header: React.FC = () => {
 
         {/* Nav items */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
+          {/* Account */}
+          <div className="px-5 pt-5 pb-1">
+            {user ? (
+              <div className="pb-4 border-b" style={{ borderColor: BORDER }}>
+                <div
+                  className="mb-1 text-[10px] font-black tracking-[0.3em] uppercase"
+                  style={{ color: "rgba(255,255,255,0.2)" }}
+                >
+                  {TXT.account[lang]}
+                </div>
+                <p className="truncate text-[13px] font-semibold text-white">{user.email}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <button
+                    type="button"
+                    onClick={() => handleRouteChange("/tai-khoan")}
+                    className="text-[11px] font-black uppercase tracking-[0.12em] text-white"
+                  >
+                    {TXT.myAccount[lang]}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRouteChange("/tai-khoan/doi-mat-khau")}
+                    className="text-[11px] font-black uppercase tracking-[0.12em] text-white"
+                  >
+                    {TXT.changePassword[lang]}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="shrink-0 text-[11px] font-black uppercase tracking-[0.12em] transition-colors hover:text-white"
+                    style={{ color: TEXT_MUTED }}
+                  >
+                    {TXT.logout[lang]}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 pb-4 border-b" style={{ borderColor: BORDER }}>
+                <button
+                  onClick={() => handleRouteChange("/dang-nhap")}
+                  className="text-[12px] font-black uppercase tracking-[0.15em] text-white"
+                >
+                  {TXT.login[lang]}
+                </button>
+                <button
+                  onClick={() => handleRouteChange("/dang-ky")}
+                  className="text-[12px] font-black uppercase tracking-[0.15em] transition-colors hover:text-white"
+                  style={{ color: TEXT_MUTED }}
+                >
+                  {TXT.register[lang]}
+                </button>
+              </div>
+            )}
+          </div>
+
           <nav className="flex flex-col px-5 py-6 gap-1 text-[12px] font-black tracking-[0.18em] uppercase">
             <button
               onClick={() => handleRouteChange("/")}
