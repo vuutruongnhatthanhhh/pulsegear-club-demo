@@ -56,6 +56,7 @@ const TXT = {
   logout: { vi: "Đăng xuất", en: "Sign out" },
   account: { vi: "Tài khoản", en: "Account" },
   myAccount: { vi: "Thông tin cá nhân", en: "Personal info" },
+  orderHistory: { vi: "Lịch sử đơn hàng", en: "Order history" },
   changePassword: { vi: "Đổi mật khẩu", en: "Change password" },
 };
 
@@ -340,6 +341,13 @@ const Header: React.FC = () => {
                         {TXT.myAccount[lang]}
                       </Link>
                       <Link
+                        href="/tai-khoan/don-hang"
+                        onClick={() => setAccountOpen(false)}
+                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
+                      >
+                        {TXT.orderHistory[lang]}
+                      </Link>
+                      <Link
                         href="/tai-khoan/doi-mat-khau"
                         onClick={() => setAccountOpen(false)}
                         className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
@@ -349,7 +357,7 @@ const Header: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-white/5"
+                        className="block w-full px-4 py-2 text-left text-[12px] font-bold uppercase tracking-[0.1em] text-red-500 transition-colors hover:bg-white/5 hover:text-red-400"
                       >
                         {TXT.logout[lang]}
                       </button>
@@ -640,20 +648,26 @@ const Header: React.FC = () => {
                   </button>
                   <button
                     type="button"
+                    onClick={() => handleRouteChange("/tai-khoan/don-hang")}
+                    className="text-[11px] font-black uppercase tracking-[0.12em] text-white"
+                  >
+                    {TXT.orderHistory[lang]}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => handleRouteChange("/tai-khoan/doi-mat-khau")}
                     className="text-[11px] font-black uppercase tracking-[0.12em] text-white"
                   >
                     {TXT.changePassword[lang]}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="shrink-0 text-[11px] font-black uppercase tracking-[0.12em] transition-colors hover:text-white"
-                    style={{ color: TEXT_MUTED }}
-                  >
-                    {TXT.logout[lang]}
-                  </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-red-500 transition-colors hover:text-red-400"
+                >
+                  {TXT.logout[lang]}
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-4 pb-4 border-b" style={{ borderColor: BORDER }}>

@@ -15,6 +15,7 @@ import {
 import { useI18nStore } from "@/lib/i18n/store";
 import { useCartStore, cartSubtotal } from "@/lib/cart/store";
 import { getShippingFee, FALLBACK_SHIPPING_FEE } from "@/lib/shippingConfig";
+import { useAuthStore } from "@/lib/auth/store";
 
 const C = {
   bg: "#0A0A0A",
@@ -47,6 +48,10 @@ const T = {
   free: { vi: "Miễn phí", en: "Free" },
   total: { vi: "Tổng cộng", en: "Total" },
   checkout: { vi: "TIẾN HÀNH THANH TOÁN", en: "PROCEED TO CHECKOUT" },
+  loginRequired: {
+    vi: "Vui lòng đăng nhập để tiến hành đặt hàng",
+    en: "Please sign in to place your order",
+  },
   continueShopping: { vi: "Tiếp tục mua sắm", en: "Continue shopping" },
   emptyTitle: { vi: "Giỏ hàng của bạn đang trống", en: "Your cart is empty" },
   emptySub: {
@@ -60,6 +65,7 @@ const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
 export default function CartPage() {
   const lang = useI18nStore((s) => s.lang);
+  const { user } = useAuthStore();
   const items = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const removeItem = useCartStore((s) => s.removeItem);
@@ -295,11 +301,12 @@ export default function CartPage() {
                 </div>
 
                 <Link
-                  href="/thanh-toan"
-                  className="mt-6 flex w-full items-center justify-center gap-2 py-4 text-[12px] font-black tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
+                  href={user ? "/thanh-toan" : "/dang-nhap"}
+                  className="mt-6 flex w-full items-center justify-center gap-2 py-4 text-center text-[12px] font-black tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98]"
                   style={{ backgroundColor: C.accent }}
                 >
-                  {T.checkout[lang]} <ArrowRight size={14} />
+                  {user ? T.checkout[lang] : T.loginRequired[lang]}
+                  {user && <ArrowRight size={14} />}
                 </Link>
 
                 <Link

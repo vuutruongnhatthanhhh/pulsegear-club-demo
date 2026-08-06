@@ -15,6 +15,9 @@ import {
 import { useI18nStore } from "@/lib/i18n/store";
 import { useCartStore, cartSubtotal } from "@/lib/cart/store";
 import { getShippingFee, FALLBACK_SHIPPING_FEE } from "@/lib/shippingConfig";
+import { useAuthStore } from "@/lib/auth/store";
+import { getProfile } from "@/lib/profile";
+import { createOrder } from "@/lib/orders";
 
 const C = {
   bg: "#0A0A0A",
@@ -62,6 +65,12 @@ const T = {
     vi: "Đang chuyển về trang chủ...",
     en: "Redirecting you to the homepage...",
   },
+  loading: { vi: "Đang tải...", en: "Loading..." },
+  submitting: { vi: "ĐANG ĐẶT HÀNG...", en: "PLACING ORDER..." },
+  loginRequired: {
+    vi: "Vui lòng đăng nhập để tiến hành đặt hàng",
+    en: "Please sign in to place your order",
+  },
 };
 
 const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";
@@ -74,6 +83,7 @@ const PAYMENT_METHODS = [
 export default function CheckoutPage() {
   const lang = useI18nStore((s) => s.lang);
   const router = useRouter();
+  const { user, loading: authLoading } = useAuthStore();
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const subtotal = cartSubtotal(items);
@@ -83,21 +93,84 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [shippingFee, setShippingFee] = useState(FALLBACK_SHIPPING_FEE);
 
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [note, setNote] = useState("");
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    getProfile(user.id).then((data) => {
+      setFullName(data?.fullName || (user.user_metadata?.full_name as string | undefined) || "");
+      setPhone(data?.phone ?? "");
+      setAddress(data?.address ?? "");
+      setProfileLoaded(true);
+    });
+  }, [user]);
+
   useEffect(() => {
     getShippingFee().then((fee) => {
       if (fee !== null) setShippingFee(fee);
     });
   }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const canSubmit =
+    !!user &&
+    !submitting &&
+    fullName.trim() !== "" &&
+    phone.trim() !== "" &&
+    address.trim() !== "";
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (items.length === 0 || submitting) return;
+    if (!user) {
+      router.push("/dang-nhap");
+      return;
+    }
+    if (items.length === 0 || !canSubmit) return;
     setSubmitting(true);
+
+    const result = await createOrder({
+      userId: user.id,
+      items,
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      note: note.trim(),
+      paymentMethod: payment,
+      subtotal,
+      shippingFee,
+    });
+
+    if (result.error) {
+      setSubmitting(false);
+      toast.error(result.error);
+      return;
+    }
+
+    fetch("/api/orders/notify-new", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: result.orderId }),
+    }).catch(() => {});
+
     setOrderPlaced(true);
     toast.success(T.orderSuccess[lang]);
     clear();
     setTimeout(() => router.push("/"), 1600);
   };
+
+  if (authLoading || (user && !profileLoaded)) {
+    return (
+      <div
+        className="flex min-h-screen w-full items-center justify-center"
+        style={{ backgroundColor: C.bg, color: C.muted }}
+      >
+        {T.loading[lang]}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: C.bg, color: "#fff" }}>
@@ -185,26 +258,34 @@ export default function CheckoutPage() {
                 <div className="flex flex-col gap-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <input
-                      required
+                      required={!!user}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                       placeholder={T.fullName[lang]}
                       className="h-12 w-full bg-transparent px-4 text-[13px] text-white placeholder-white/25 outline-none"
                       style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
                     />
                     <input
-                      required
+                      required={!!user}
                       type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                       placeholder={T.phone[lang]}
                       className="h-12 w-full bg-transparent px-4 text-[13px] text-white placeholder-white/25 outline-none"
                       style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
                     />
                   </div>
                   <input
-                    required
+                    required={!!user}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                     placeholder={T.address[lang]}
                     className="h-12 w-full bg-transparent px-4 text-[13px] text-white placeholder-white/25 outline-none"
                     style={{ border: `1px solid ${C.border}`, backgroundColor: "#141414" }}
                   />
                   <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
                     placeholder={T.noteHint[lang]}
                     rows={3}
                     className="w-full resize-none bg-transparent px-4 py-3 text-[13px] text-white placeholder-white/25 outline-none"
@@ -324,11 +405,16 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="mt-6 flex w-full items-center justify-center gap-2 py-4 text-[12px] font-black tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-60"
+                  disabled={!!user && !canSubmit}
+                  className="mt-6 flex w-full items-center justify-center gap-2 py-4 text-center text-[12px] font-black tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   style={{ backgroundColor: C.accent }}
                 >
-                  {T.placeOrder[lang]} <ArrowRight size={14} />
+                  {!user
+                    ? T.loginRequired[lang]
+                    : submitting
+                      ? T.submitting[lang]
+                      : T.placeOrder[lang]}
+                  {user && !submitting && <ArrowRight size={14} />}
                 </button>
               </div>
             </aside>
