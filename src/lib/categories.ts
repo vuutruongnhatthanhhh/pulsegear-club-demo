@@ -51,6 +51,18 @@ export async function getAllCategories(): Promise<Category[]> {
   return (data as CategoryRow[]).map(mapCategory);
 }
 
+/** A single category by its URL slug (e.g. "do-nam" → href "/do-nam"). */
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("href", `/${slug}`)
+    .single();
+
+  if (error || !data) return null;
+  return mapCategory(data as CategoryRow);
+}
+
 /** Only the categories flagged to appear in the homepage "Shop by category" grid. */
 export async function getHomepageCategories(): Promise<Category[]> {
   const { data, error } = await supabase

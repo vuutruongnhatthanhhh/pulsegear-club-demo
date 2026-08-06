@@ -53,7 +53,7 @@ export default function CollectionsPage() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: C.bg, color: "#fff" }}>
+    <div className="min-h-screen" style={{ backgroundColor: C.bg, color: "#fff" }}>
       {/* ════════ HERO ════════ */}
       <section className="relative w-full overflow-hidden">
         <div
@@ -125,7 +125,7 @@ export default function CollectionsPage() {
             {drops.map((drop) => (
               <Link
                 key={drop.id}
-                href={drop.href}
+                href={`/bo-suu-tap/${drop.id}`}
                 className="group relative flex h-full flex-col overflow-hidden"
                 style={{ border: `1px solid ${C.border}` }}
               >

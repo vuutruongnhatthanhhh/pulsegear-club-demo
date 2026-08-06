@@ -1,12 +1,18 @@
 "use client";
 
-import { useMemo, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { ChevronRight, Search, SearchX, ShoppingBag } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  SearchX,
+  ShoppingBag,
+} from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
-import { CATEGORY_META, PRODUCTS_BY_CATEGORY } from "@/lib/products";
+import { searchProducts, type ProductSearchResult } from "@/lib/products";
 import { useCartStore } from "@/lib/cart/store";
 import { flyToCart } from "@/lib/cart/flyStore";
 
@@ -62,17 +68,7 @@ const T = {
 
 const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
-type SearchResult = {
-  id: number;
-  slug: string;
-  accent: string;
-  name: { vi: string; en: string };
-  price: number;
-  oldPrice?: number;
-  img: string;
-  tag?: { vi: string; en: string } | null;
-  rating?: number;
-};
+const PAGE_SIZE = 9;
 
 export default function SearchPage() {
   const lang = useI18nStore((s) => s.lang);
@@ -80,31 +76,54 @@ export default function SearchPage() {
   const query = (searchParams.get("q") || "").trim();
   const addItem = useCartStore((s) => s.addItem);
 
-  const results = useMemo(() => {
-    if (!query) return [];
-    const q = query.toLowerCase();
-    const all: SearchResult[] = [];
-    for (const slug of Object.keys(PRODUCTS_BY_CATEGORY)) {
-      const meta = CATEGORY_META[slug];
-      for (const p of PRODUCTS_BY_CATEGORY[slug]) {
-        const haystack = `${p.name.vi} ${p.name.en}`.toLowerCase();
-        if (haystack.includes(q)) {
-          all.push({ ...p, slug, accent: meta?.accent || C.accent });
-        }
-      }
+  const [results, setResults] = useState<ProductSearchResult[]>([]);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+
+  useEffect(() => {
+    if (!query) {
+      setResults([]);
+      return;
     }
-    return all;
+    let cancelled = false;
+    searchProducts(query).then((data) => {
+      if (!cancelled) setResults(data);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [query]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [results]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paginatedResults = results.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+
+  const goToPage = (n: number) => {
+    if (n < 1 || n > totalPages || n === page) return;
+    setPage(n);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const handleAddToCart = (
     e: MouseEvent<HTMLButtonElement>,
-    p: SearchResult
+    p: ProductSearchResult
   ) => {
     e.preventDefault();
     e.stopPropagation();
     addItem({
-      key: `${p.slug}-${p.id}`,
-      category: p.slug,
+      key: `${p.categorySlug}-${p.id}`,
+      category: p.categorySlug,
       id: p.id,
       name: p.name,
       price: p.price,
@@ -209,12 +228,15 @@ export default function SearchPage() {
             </section>
 
             <section className="w-full" style={{ backgroundColor: C.bg }}>
-              <div className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
+              <div
+                ref={gridRef}
+                className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24"
+              >
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {results.map((p) => (
+                  {paginatedResults.map((p) => (
                     <Link
-                      key={`${p.slug}-${p.id}`}
-                      href={`/san-pham/${p.slug}/${p.id}`}
+                      key={`${p.categorySlug}-${p.id}`}
+                      href={`/san-pham/${p.categorySlug}/${p.id}`}
                       className="group relative block"
                     >
                       <div
@@ -233,7 +255,7 @@ export default function SearchPage() {
                         {p.tag && (
                           <div
                             className="absolute left-2.5 top-2.5 px-2 py-1 text-[9px] font-black tracking-[0.2em] uppercase"
-                            style={{ backgroundColor: p.accent, color: "#000" }}
+                            style={{ backgroundColor: p.categoryAccent, color: "#000" }}
                           >
                             {p.tag[lang]}
                           </div>
@@ -241,7 +263,7 @@ export default function SearchPage() {
                         <button
                           onClick={(e) => handleAddToCart(e, p)}
                           className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] text-black opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-                          style={{ backgroundColor: p.accent }}
+                          style={{ backgroundColor: p.categoryAccent }}
                         >
                           <ShoppingBag size={12} />
                           {T.addToCart[lang]}
@@ -255,7 +277,7 @@ export default function SearchPage() {
                         <div className="mt-1 flex items-center gap-2">
                           <span
                             className="text-[14px] font-black"
-                            style={{ color: p.oldPrice ? p.accent : "#fff" }}
+                            style={{ color: p.oldPrice ? p.categoryAccent : "#fff" }}
                           >
                             {formatPrice(p.price)}
                           </span>
@@ -272,6 +294,51 @@ export default function SearchPage() {
                     </Link>
                   ))}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-14 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => goToPage(page - 1)}
+                      disabled={page === 1}
+                      className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                      style={{ border: `1px solid ${C.border}` }}
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={15} />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (n) => (
+                        <button
+                          key={n}
+                          onClick={() => goToPage(n)}
+                          className="flex h-10 w-10 items-center justify-center text-[12px] font-bold transition-colors"
+                          style={
+                            n === page
+                              ? { backgroundColor: C.accent, color: "#000" }
+                              : {
+                                  border: `1px solid ${C.border}`,
+                                  color: C.muted,
+                                }
+                          }
+                        >
+                          {n}
+                        </button>
+                      )
+                    )}
+
+                    <button
+                      onClick={() => goToPage(page + 1)}
+                      disabled={page === totalPages}
+                      className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                      style={{ border: `1px solid ${C.border}` }}
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={15} />
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
           </>

@@ -44,6 +44,7 @@ const NEWS_NAV_ITEM: NavItem = { vi: "Tin Tức", en: "News", href: "/tin-tuc" }
    ========================================================= */
 const TXT = {
   aboutUs: { vi: "Về Chúng Tôi", en: "About Us" },
+  collections: { vi: "Bộ Sưu Tập", en: "Collections" },
   contact: { vi: "Liên Hệ", en: "Contact" },
   searchPlaceholder: { vi: "Tìm kiếm...", en: "Search gear..." },
   searchPlaceholderShort: { vi: "Tìm kiếm...", en: "Search..." },
@@ -189,6 +190,12 @@ const Header: React.FC = () => {
                 className="transition-colors hover:text-white"
               >
                 {TXT.aboutUs[lang]}
+              </Link>
+              <Link
+                href="/bo-suu-tap"
+                className="transition-colors hover:text-white"
+              >
+                {TXT.collections[lang]}
               </Link>
               <Link
                 href="/lien-he"
@@ -682,6 +689,14 @@ const Header: React.FC = () => {
               style={{ borderColor: BORDER }}
             >
               {TXT.aboutUs[lang]}
+            </button>
+
+            <button
+              onClick={() => handleRouteChange("/bo-suu-tap")}
+              className="text-left py-3 text-white/70 transition-colors hover:text-white border-b"
+              style={{ borderColor: BORDER }}
+            >
+              {TXT.collections[lang]}
             </button>
 
             {NAV_ITEMS.map((item) => (

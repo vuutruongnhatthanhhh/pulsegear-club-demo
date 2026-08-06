@@ -36,7 +36,7 @@ export default function DanhMucPage() {
   }, []);
 
   return (
-    <div style={{ backgroundColor: C.bg, color: "#fff" }}>
+    <div className="min-h-screen" style={{ backgroundColor: C.bg, color: "#fff" }}>
       {/* ════════ HEADER ════════ */}
       <section className="w-full" style={{ backgroundColor: C.bg }}>
         <div className="mx-auto max-w-screen-2xl px-8 pb-10 pt-32 md:px-16 lg:px-24 lg:pt-40">

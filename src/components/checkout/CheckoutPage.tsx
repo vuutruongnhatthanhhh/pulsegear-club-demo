@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { useCartStore, cartSubtotal } from "@/lib/cart/store";
+import { getShippingFee, FALLBACK_SHIPPING_FEE } from "@/lib/shippingConfig";
 
 const C = {
   bg: "#0A0A0A",
@@ -80,6 +81,13 @@ export default function CheckoutPage() {
   const [payment, setPayment] = useState<"cod" | "bank">("cod");
   const [submitting, setSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [shippingFee, setShippingFee] = useState(FALLBACK_SHIPPING_FEE);
+
+  useEffect(() => {
+    getShippingFee().then((fee) => {
+      if (fee !== null) setShippingFee(fee);
+    });
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -299,7 +307,7 @@ export default function CheckoutPage() {
                     {T.shipping[lang]}
                   </span>
                   <span className="font-bold" style={{ color: C.accent }}>
-                    {T.free[lang]}
+                    {shippingFee > 0 ? formatPrice(shippingFee) : T.free[lang]}
                   </span>
                 </div>
 
@@ -310,7 +318,7 @@ export default function CheckoutPage() {
                     {T.total[lang]}
                   </span>
                   <span className="text-xl font-black" style={{ color: C.accent }}>
-                    {formatPrice(subtotal)}
+                    {formatPrice(subtotal + shippingFee)}
                   </span>
                 </div>
 

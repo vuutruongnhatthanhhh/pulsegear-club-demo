@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -25,9 +25,6 @@ const C = {
   border: "rgba(255,255,255,0.07)",
 };
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
-const SWATCHES = ["#0A0A0A", "#FFFFFF", "#888888"];
-
 const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";
 
 const T = {
@@ -37,7 +34,6 @@ const T = {
   quantity: { vi: "SỐ LƯỢNG", en: "QUANTITY" },
   addToCart: { vi: "THÊM VÀO GIỎ", en: "ADD TO CART" },
   descTitle: { vi: "MÔ TẢ SẢN PHẨM", en: "PRODUCT DESCRIPTION" },
-  careTitle: { vi: "CHẤT LIỆU & BẢO QUẢN", en: "MATERIAL & CARE" },
   shipping: { vi: "Miễn phí vận chuyển", en: "Free shipping" },
   shippingSub: {
     vi: "Đơn hàng trên 2.000.000₫",
@@ -48,20 +44,6 @@ const T = {
   guarantee: { vi: "Cam kết chất lượng", en: "Quality guarantee" },
   guaranteeSub: { vi: "Bền bỉ hoặc hoàn tiền", en: "Built to last" },
   related: { vi: "SẢN PHẨM LIÊN QUAN", en: "YOU MAY ALSO LIKE" },
-  careItems: {
-    vi: [
-      "Giặt máy ở nhiệt độ thường, không dùng chất tẩy",
-      "Không sấy ở nhiệt độ cao, phơi trong bóng râm",
-      "Không ủi trực tiếp lên hình in hoặc logo",
-      "Vải co giãn 4 chiều, thoáng khí và thấm hút mồ hôi",
-    ],
-    en: [
-      "Machine wash cold, do not bleach",
-      "Do not tumble dry high, dry in shade",
-      "Do not iron directly on prints or logo",
-      "4-way stretch fabric, breathable and moisture-wicking",
-    ],
-  },
 };
 
 export default function ProductDetail({
@@ -74,28 +56,39 @@ export default function ProductDetail({
   related: Product[];
 }) {
   const lang = useI18nStore((s) => s.lang);
-  const [size, setSize] = useState("M");
-  const [color, setColor] = useState(0);
+  const [size, setSize] = useState<string | null>(product.sizes[0] ?? null);
+  const [color, setColor] = useState<number | null>(product.colors.length > 0 ? 0 : null);
   const [qty, setQty] = useState(1);
+  const gallery = product.images.length > 0 ? product.images : [product.img];
+  const [activeImage, setActiveImage] = useState(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const addItem = useCartStore((s) => s.addItem);
+
+  useEffect(() => {
+    setActiveImage(0);
+    setSize(product.sizes[0] ?? null);
+    setColor(product.colors.length > 0 ? 0 : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
+
+  const selectedColor = color !== null ? product.colors[color] : null;
 
   const handleAddToCart = () => {
     addItem(
       {
-        key: `${category.slug}-${product.id}-${size}-${SWATCHES[color]}`,
+        key: `${category.slug}-${product.id}-${size ?? ""}-${selectedColor?.hex ?? ""}`,
         category: category.slug,
         id: product.id,
         name: product.name,
         price: product.price,
         oldPrice: product.oldPrice,
         img: product.img,
-        size,
-        color: SWATCHES[color],
+        size: size ?? undefined,
+        color: selectedColor?.hex,
       },
       qty
     );
-    if (imgRef.current) flyToCart(product.img, imgRef.current);
+    if (imgRef.current) flyToCart(gallery[activeImage], imgRef.current);
     toast.success(
       lang === "vi"
         ? `Đã thêm "${product.name.vi}" vào giỏ hàng`
@@ -103,13 +96,8 @@ export default function ProductDetail({
     );
   };
 
-  const descText =
-    lang === "vi"
-      ? `${product.name.vi} được thiết kế cho những buổi tập cường độ cao — chất liệu co giãn 4 chiều, thoáng khí và giữ dáng bền bỉ qua hàng trăm lần giặt. Đường may gia cố ở các điểm chịu lực, form dáng ôm vừa phải giúp bạn tự do chuyển động mà không lo vướng víu.`
-      : `${product.name.en} is built for high-intensity training — 4-way stretch fabric, breathable, and holds its shape through hundreds of washes. Reinforced stitching at stress points, with a fit that moves freely without ever getting in the way.`;
-
   return (
-    <div style={{ backgroundColor: C.bg, color: "#fff" }}>
+    <div className="min-h-screen" style={{ backgroundColor: C.bg, color: "#fff" }}>
       {/* ════════ BREADCRUMB ════════ */}
       <div
         className="w-full border-b"
@@ -137,23 +125,45 @@ export default function ProductDetail({
       {/* ════════ MAIN ════════ */}
       <section className="w-full" style={{ backgroundColor: C.bg }}>
         <div className="mx-auto grid max-w-screen-2xl gap-12 px-8 py-12 md:px-16 lg:grid-cols-2 lg:px-24 lg:py-16">
-          {/* Image */}
-          <div
-            className="relative aspect-[3/4] w-full overflow-hidden"
-            style={{ backgroundColor: C.bg3 }}
-          >
-            <img
-              ref={imgRef}
-              src={product.img}
-              alt={product.name[lang]}
-              className="h-full w-full object-cover"
-            />
-            {product.tag && (
-              <div
-                className="absolute left-4 top-4 px-3 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase"
-                style={{ backgroundColor: category.accent, color: "#000" }}
-              >
-                {product.tag[lang]}
+          {/* Image gallery */}
+          <div>
+            <div
+              className="relative aspect-[3/4] w-full overflow-hidden"
+              style={{ backgroundColor: C.bg3 }}
+            >
+              <img
+                ref={imgRef}
+                src={gallery[activeImage]}
+                alt={product.name[lang]}
+                className="h-full w-full object-cover"
+              />
+              {product.tag && (
+                <div
+                  className="absolute left-4 top-4 px-3 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase"
+                  style={{ backgroundColor: category.accent, color: "#000" }}
+                >
+                  {product.tag[lang]}
+                </div>
+              )}
+            </div>
+
+            {gallery.length > 1 && (
+              <div className="mt-3 grid grid-cols-5 gap-2.5">
+                {gallery.map((src, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveImage(i)}
+                    className="relative aspect-square w-full overflow-hidden transition-opacity"
+                    style={{
+                      backgroundColor: C.bg3,
+                      border: i === activeImage ? `2px solid ${category.accent}` : `1px solid ${C.border}`,
+                      opacity: i === activeImage ? 1 : 0.6,
+                    }}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -181,75 +191,78 @@ export default function ProductDetail({
               )}
             </div>
 
-            <p
-              className="mt-6 max-w-md text-[15px] leading-relaxed"
-              style={{ color: C.muted }}
-            >
-              {descText}
-            </p>
-
             <div
-              className="my-8 h-px w-full"
+              className="mt-8 h-px w-full"
               style={{ backgroundColor: C.border }}
             />
 
             {/* Color */}
-            <div className="mb-6">
-              <p
-                className="mb-3 text-[11px] font-black tracking-[0.2em]"
-                style={{ color: C.muted }}
-              >
-                {T.color[lang]}
-              </p>
-              <div className="flex items-center gap-2.5">
-                {SWATCHES.map((c, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setColor(i)}
-                    aria-label={`Color ${i + 1}`}
-                    className="h-8 w-8 rounded-full transition-all"
-                    style={{
-                      backgroundColor: c,
-                      border:
-                        color === i
-                          ? `2px solid ${category.accent}`
-                          : `1px solid ${C.border}`,
-                      outline: color === i ? `2px solid ${C.bg}` : "none",
-                      outlineOffset: "2px",
-                    }}
-                  />
-                ))}
+            {product.colors.length > 0 && (
+              <div className="mb-6">
+                <p
+                  className="mb-3 text-[11px] font-black tracking-[0.2em]"
+                  style={{ color: C.muted }}
+                >
+                  {T.color[lang]}
+                  {selectedColor && (
+                    <span className="ml-2 font-semibold normal-case tracking-normal text-white/60">
+                      {selectedColor.name[lang]}
+                    </span>
+                  )}
+                </p>
+                <div className="flex items-center gap-2.5">
+                  {product.colors.map((c, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setColor(i)}
+                      aria-label={c.name[lang] || `Color ${i + 1}`}
+                      title={c.name[lang]}
+                      className="h-8 w-8 rounded-full transition-all"
+                      style={{
+                        backgroundColor: c.hex,
+                        border:
+                          color === i
+                            ? `2px solid ${category.accent}`
+                            : `1px solid ${C.border}`,
+                        outline: color === i ? `2px solid ${C.bg}` : "none",
+                        outlineOffset: "2px",
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Size */}
-            <div className="mb-6">
-              <p
-                className="mb-3 text-[11px] font-black tracking-[0.2em]"
-                style={{ color: C.muted }}
-              >
-                {T.size[lang]}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {SIZES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className="flex h-11 min-w-11 items-center justify-center px-3 text-[12px] font-bold transition-all"
-                    style={
-                      size === s
-                        ? { backgroundColor: category.accent, color: "#000" }
-                        : {
-                            border: `1px solid ${C.border}`,
-                            color: "rgba(255,255,255,0.7)",
-                          }
-                    }
-                  >
-                    {s}
-                  </button>
-                ))}
+            {product.sizes.length > 0 && (
+              <div className="mb-6">
+                <p
+                  className="mb-3 text-[11px] font-black tracking-[0.2em]"
+                  style={{ color: C.muted }}
+                >
+                  {T.size[lang]}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      className="flex h-11 min-w-11 items-center justify-center px-3 text-[12px] font-bold transition-all"
+                      style={
+                        size === s
+                          ? { backgroundColor: category.accent, color: "#000" }
+                          : {
+                              border: `1px solid ${C.border}`,
+                              color: "rgba(255,255,255,0.7)",
+                            }
+                      }
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity */}
             <div className="mb-8">
@@ -323,45 +336,24 @@ export default function ProductDetail({
         </div>
       </section>
 
-      {/* ════════ DESCRIPTION / CARE ════════ */}
-      <section
-        className="w-full border-t"
-        style={{ backgroundColor: C.bg2, borderColor: C.border }}
-      >
-        <div className="mx-auto grid max-w-screen-2xl gap-10 px-8 py-14 md:px-16 lg:grid-cols-2 lg:px-24">
-          <div>
+      {/* ════════ DESCRIPTION ════════ */}
+      {product.description?.[lang] && (
+        <section
+          className="w-full border-t"
+          style={{ backgroundColor: C.bg2, borderColor: C.border }}
+        >
+          <div className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
             <h2 className="mb-4 text-sm font-black tracking-[0.2em] text-white">
               {T.descTitle[lang]}
             </h2>
-            <p
-              className="text-[15px] leading-relaxed"
+            <div
+              className="max-w-none text-[15px] leading-relaxed [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1 [&_strong]:font-bold [&_strong]:text-white [&_em]:italic [&_a]:underline [&_img]:my-4 [&_img]:w-full [&_img]:max-w-2xl [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-black [&_h1]:text-white [&_h2]:mb-3 [&_h2]:text-lg [&_h2]:font-black [&_h2]:text-white [&_h3]:mb-2 [&_h3]:text-base [&_h3]:font-black [&_h3]:text-white"
               style={{ color: C.muted }}
-            >
-              {descText}
-            </p>
+              dangerouslySetInnerHTML={{ __html: product.description[lang] }}
+            />
           </div>
-          <div>
-            <h2 className="mb-4 text-sm font-black tracking-[0.2em] text-white">
-              {T.careTitle[lang]}
-            </h2>
-            <ul className="space-y-2.5">
-              {T.careItems[lang].map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2.5 text-[15px] leading-relaxed"
-                  style={{ color: C.muted }}
-                >
-                  <span
-                    className="mt-2 h-1 w-1 shrink-0 rounded-full"
-                    style={{ backgroundColor: category.accent }}
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ════════ RELATED ════════ */}
       {related.length > 0 && (

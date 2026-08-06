@@ -45,6 +45,13 @@ export async function getAllDrops(): Promise<Drop[]> {
   return (data as DropRow[]).map(mapDrop);
 }
 
+/** A single drop by id — used by the /bo-suu-tap/[id] product listing page. */
+export async function getDropById(id: number): Promise<Drop | null> {
+  const { data, error } = await supabase.from("drops").select("*").eq("id", id).single();
+  if (error || !data) return null;
+  return mapDrop(data as DropRow);
+}
+
 /** Only the drops flagged to appear in the homepage "Latest drops" preview. */
 export async function getHomepageDrops(): Promise<Drop[]> {
   const { data, error } = await supabase

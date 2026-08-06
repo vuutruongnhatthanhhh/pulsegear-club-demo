@@ -1014,7 +1014,7 @@ export default function Page() {
             {drops.map((drop, i) => (
               <Link
                 key={drop.id}
-                href={drop.href}
+                href={`/bo-suu-tap/${drop.id}`}
                 className="group relative flex h-full flex-col overflow-hidden"
                 style={{ border: `1px solid ${C.border}` }}
               >

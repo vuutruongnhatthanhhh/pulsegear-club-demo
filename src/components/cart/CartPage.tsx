@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import { useCartStore, cartSubtotal } from "@/lib/cart/store";
+import { getShippingFee, FALLBACK_SHIPPING_FEE } from "@/lib/shippingConfig";
 
 const C = {
   bg: "#0A0A0A",
@@ -64,6 +65,7 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem);
   const clear = useCartStore((s) => s.clear);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [shippingFee, setShippingFee] = useState(FALLBACK_SHIPPING_FEE);
 
   useEffect(() => {
     document.body.style.overflow = confirmOpen ? "hidden" : "";
@@ -71,6 +73,12 @@ export default function CartPage() {
       document.body.style.overflow = "";
     };
   }, [confirmOpen]);
+
+  useEffect(() => {
+    getShippingFee().then((fee) => {
+      if (fee !== null) setShippingFee(fee);
+    });
+  }, []);
 
   const handleConfirmClear = () => {
     clear();
@@ -271,7 +279,7 @@ export default function CartPage() {
                     {T.shipping[lang]}
                   </span>
                   <span className="font-bold" style={{ color: C.accent }}>
-                    {T.free[lang]}
+                    {shippingFee > 0 ? formatPrice(shippingFee) : T.free[lang]}
                   </span>
                 </div>
 
@@ -282,7 +290,7 @@ export default function CartPage() {
                     {T.total[lang]}
                   </span>
                   <span className="text-xl font-black" style={{ color: C.accent }}>
-                    {formatPrice(subtotal)}
+                    {formatPrice(subtotal + shippingFee)}
                   </span>
                 </div>
 

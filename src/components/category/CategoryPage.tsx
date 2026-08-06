@@ -1,12 +1,9 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { toast } from "sonner";
-import { ChevronRight, ShoppingBag, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
-import { useCartStore } from "@/lib/cart/store";
-import { flyToCart } from "@/lib/cart/flyStore";
 
 const C = {
   bg: "#0A0A0A",
@@ -33,9 +30,18 @@ const T = {
   breadcrumbHome: { vi: "Trang chủ", en: "Home" },
   results: { vi: "sản phẩm", en: "products" },
   sortBy: { vi: "Sắp xếp", en: "Sort by" },
-  filter: { vi: "Bộ lọc", en: "Filter" },
-  addToCart: { vi: "Thêm vào giỏ", en: "Add to cart" },
+  sortDefault: { vi: "Mặc định", en: "Default" },
+  sortPriceAsc: { vi: "Giá: Thấp đến cao", en: "Price: Low to High" },
+  sortPriceDesc: { vi: "Giá: Cao đến thấp", en: "Price: High to Low" },
 };
+
+type SortOption = "default" | "price-asc" | "price-desc";
+
+const SORT_OPTIONS: { value: SortOption; label: { vi: string; en: string } }[] = [
+  { value: "default", label: T.sortDefault },
+  { value: "price-asc", label: T.sortPriceAsc },
+  { value: "price-desc", label: T.sortPriceDesc },
+];
 
 export type Product = {
   id: number;
@@ -45,10 +51,16 @@ export type Product = {
   img: string;
   tag?: { vi: string; en: string } | null;
   rating?: number;
+  // Set when this grid mixes products from several real categories (e.g. the
+  // "Giảm giá" page) — overrides `slug` for this product's link/cart entry so
+  // it still points at its real category instead of the virtual one.
+  categorySlug?: string;
 };
 
 const formatPrice = (n: number) =>
   n.toLocaleString("vi-VN") + "₫";
+
+const PAGE_SIZE = 9;
 
 export default function CategoryPage({
   slug,
@@ -66,31 +78,58 @@ export default function CategoryPage({
   products: Product[];
 }) {
   const lang = useI18nStore((s) => s.lang);
-  const addItem = useCartStore((s) => s.addItem);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  const handleAddToCart = (e: MouseEvent<HTMLButtonElement>, p: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({
-      key: `${slug}-${p.id}`,
-      category: slug,
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      oldPrice: p.oldPrice,
-      img: p.img,
-    });
-    const imgEl = e.currentTarget.parentElement?.querySelector("img");
-    if (imgEl) flyToCart(p.img, imgEl);
-    toast.success(
-      lang === "vi"
-        ? `Đã thêm "${p.name.vi}" vào giỏ hàng`
-        : `Added "${p.name.en}" to cart`
-    );
+  const [sortBy, setSortBy] = useState<SortOption>("default");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (
+        sortMenuRef.current &&
+        !sortMenuRef.current.contains(e.target as Node) &&
+        !sortBtnRef.current?.contains(e.target as Node)
+      ) {
+        setSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const sortedProducts =
+    sortBy === "price-asc"
+      ? [...products].sort((a, b) => a.price - b.price)
+      : sortBy === "price-desc"
+        ? [...products].sort((a, b) => b.price - a.price)
+        : products;
+
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [products, sortBy]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paginatedProducts = sortedProducts.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+
+  const goToPage = (n: number) => {
+    if (n < 1 || n > totalPages || n === page) return;
+    setPage(n);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div style={{ backgroundColor: C.bg, color: "#fff" }}>
+    <div className="min-h-screen" style={{ backgroundColor: C.bg, color: "#fff" }}>
       {/* ════════ HERO ════════ */}
       <section className="relative w-full overflow-hidden">
         <div
@@ -146,33 +185,54 @@ export default function CategoryPage({
           >
             {products.length} {T.results[lang]}
           </p>
-          <div className="flex items-center gap-3">
+          <div className="relative">
             <button
-              className="flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/70 transition-colors hover:text-white"
-              style={{ border: `1px solid ${C.border}` }}
-            >
-              <SlidersHorizontal size={13} />
-              {T.filter[lang]}
-            </button>
-            <button
+              ref={sortBtnRef}
+              onClick={() => setSortOpen((v) => !v)}
               className="flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/70 transition-colors hover:text-white"
               style={{ border: `1px solid ${C.border}` }}
             >
               {T.sortBy[lang]}
               <ChevronRight size={13} className="rotate-90" />
             </button>
+
+            {sortOpen && (
+              <div
+                ref={sortMenuRef}
+                className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden py-1 shadow-2xl"
+                style={{ backgroundColor: C.bg2, border: `1px solid ${C.border}` }}
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      setSortBy(opt.value);
+                      setSortOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-[12px] font-semibold transition-colors hover:text-white"
+                    style={{ color: sortBy === opt.value ? accent : "rgba(255,255,255,0.7)" }}
+                  >
+                    {opt.label[lang]}
+                    {sortBy === opt.value && <Check size={13} />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ════════ PRODUCT GRID ════════ */}
       <section className="w-full" style={{ backgroundColor: C.bg }}>
-        <div className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
+        <div
+          ref={gridRef}
+          className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24"
+        >
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {products.map((p) => (
+            {paginatedProducts.map((p) => (
               <Link
                 key={p.id}
-                href={`/san-pham/${slug}/${p.id}`}
+                href={`/san-pham/${p.categorySlug ?? slug}/${p.id}`}
                 className="group relative block"
               >
                 <div
@@ -196,14 +256,6 @@ export default function CategoryPage({
                       {p.tag[lang]}
                     </div>
                   )}
-                  <button
-                    onClick={(e) => handleAddToCart(e, p)}
-                    className="absolute inset-x-2.5 bottom-2.5 flex translate-y-2 items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] text-black opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-                    style={{ backgroundColor: accent }}
-                  >
-                    <ShoppingBag size={12} />
-                    {T.addToCart[lang]}
-                  </button>
                 </div>
 
                 <div className="mt-3">
@@ -232,31 +284,47 @@ export default function CategoryPage({
           </div>
 
           {/* Pagination */}
-          <div className="mt-14 flex items-center justify-center gap-2">
-            {[1, 2, 3].map((n) => (
+          {totalPages > 1 && (
+            <div className="mt-14 flex items-center justify-center gap-2">
               <button
-                key={n}
-                className="flex h-10 w-10 items-center justify-center text-[12px] font-bold transition-colors"
-                style={
-                  n === 1
-                    ? { backgroundColor: accent, color: "#000" }
-                    : {
-                        border: `1px solid ${C.border}`,
-                        color: C.muted,
-                      }
-                }
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 1}
+                className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                style={{ border: `1px solid ${C.border}` }}
+                aria-label="Previous page"
               >
-                {n}
+                <ChevronLeft size={15} />
               </button>
-            ))}
-            <button
-              className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white"
-              style={{ border: `1px solid ${C.border}` }}
-              aria-label="Next page"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => goToPage(n)}
+                  className="flex h-10 w-10 items-center justify-center text-[12px] font-bold transition-colors"
+                  style={
+                    n === page
+                      ? { backgroundColor: accent, color: "#000" }
+                      : {
+                          border: `1px solid ${C.border}`,
+                          color: C.muted,
+                        }
+                  }
+                >
+                  {n}
+                </button>
+              ))}
+
+              <button
+                onClick={() => goToPage(page + 1)}
+                disabled={page === totalPages}
+                className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                style={{ border: `1px solid ${C.border}` }}
+                aria-label="Next page"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
