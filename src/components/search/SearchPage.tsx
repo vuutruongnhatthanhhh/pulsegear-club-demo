@@ -125,6 +125,7 @@ export default function SearchPage() {
       key: `${p.categorySlug}-${p.id}`,
       category: p.categorySlug,
       id: p.id,
+      slug: p.slug,
       name: p.name,
       price: p.price,
       oldPrice: p.oldPrice,
@@ -236,7 +237,7 @@ export default function SearchPage() {
                   {paginatedResults.map((p) => (
                     <Link
                       key={`${p.categorySlug}-${p.id}`}
-                      href={`/san-pham/${p.categorySlug}/${p.id}`}
+                      href={`/san-pham/${p.categorySlug}/${p.slug}`}
                       className="group relative block"
                     >
                       <div

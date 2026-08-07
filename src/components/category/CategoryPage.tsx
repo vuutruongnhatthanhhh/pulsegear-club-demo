@@ -45,6 +45,7 @@ const SORT_OPTIONS: { value: SortOption; label: { vi: string; en: string } }[] =
 
 export type Product = {
   id: number;
+  slug: string;
   name: { vi: string; en: string };
   price: number;
   oldPrice?: number;
@@ -52,8 +53,9 @@ export type Product = {
   tag?: { vi: string; en: string } | null;
   rating?: number;
   // Set when this grid mixes products from several real categories (e.g. the
-  // "Giảm giá" page) — overrides `slug` for this product's link/cart entry so
-  // it still points at its real category instead of the virtual one.
+  // "Giảm giá" page) — overrides the page's `slug` prop for this product's
+  // link/cart entry so it still points at its real category instead of
+  // whatever virtual listing it's being shown on.
   categorySlug?: string;
 };
 
@@ -232,7 +234,7 @@ export default function CategoryPage({
             {paginatedProducts.map((p) => (
               <Link
                 key={p.id}
-                href={`/san-pham/${p.categorySlug ?? slug}/${p.id}`}
+                href={`/san-pham/${p.categorySlug ?? slug}/${p.slug}`}
                 className="group relative block"
               >
                 <div

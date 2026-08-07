@@ -79,6 +79,7 @@ export default function ProductDetail({
         key: `${category.slug}-${product.id}-${size ?? ""}-${selectedColor?.hex ?? ""}`,
         category: category.slug,
         id: product.id,
+        slug: product.slug,
         name: product.name,
         price: product.price,
         oldPrice: product.oldPrice,
@@ -366,7 +367,7 @@ export default function ProductDetail({
               {related.map((p) => (
                 <Link
                   key={p.id}
-                  href={`/san-pham/${category.slug}/${p.id}`}
+                  href={`/san-pham/${category.slug}/${p.slug}`}
                   className="group block"
                 >
                   <div

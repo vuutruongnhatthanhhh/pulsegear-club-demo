@@ -13,9 +13,9 @@ import {
 } from "@/lib/products";
 
 export default function ProductDetailPage() {
-  const params = useParams<{ category: string; id: string }>();
+  const params = useParams<{ category: string; slug: string }>();
   const categorySlug = params.category;
-  const id = Number(params.id);
+  const productSlug = params.slug;
 
   const [category, setCategory] = useState<CategoryMeta | null>(null);
   const [categoryChecked, setCategoryChecked] = useState(false);
@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
       setCategoryChecked(true);
     });
 
-    getProduct(categorySlug, id).then((data) => {
+    getProduct(categorySlug, productSlug).then((data) => {
       if (cancelled) return;
       setProduct(data);
       setProductChecked(true);
@@ -55,13 +55,13 @@ export default function ProductDetailPage() {
 
     getProductsByCategory(categorySlug).then((data) => {
       if (cancelled) return;
-      setRelated(data.filter((p) => p.id !== id).slice(0, 4));
+      setRelated(data.filter((p) => p.slug !== productSlug).slice(0, 4));
     });
 
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, id]);
+  }, [categorySlug, productSlug]);
 
   if (categoryChecked && !category) notFound();
   if (productChecked && !product) notFound();

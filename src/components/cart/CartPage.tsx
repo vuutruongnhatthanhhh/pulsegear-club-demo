@@ -159,7 +159,7 @@ export default function CartPage() {
                   style={{ backgroundColor: C.bg2, border: `1px solid ${C.border}` }}
                 >
                   <Link
-                    href={`/san-pham/${item.category}/${item.id}`}
+                    href={`/san-pham/${item.category}/${item.slug}`}
                     className="relative h-24 w-20 shrink-0 overflow-hidden sm:h-28 sm:w-24"
                     style={{ backgroundColor: C.bg3 }}
                   >
@@ -174,7 +174,7 @@ export default function CartPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <Link
-                          href={`/san-pham/${item.category}/${item.id}`}
+                          href={`/san-pham/${item.category}/${item.slug}`}
                           className="text-[14px] font-bold leading-snug text-white transition-colors hover:text-white/80"
                         >
                           {item.name[lang]}

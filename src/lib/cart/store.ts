@@ -7,6 +7,7 @@ export type CartItem = {
   key: string;
   category: string;
   id: number;
+  slug: string;
   name: { vi: string; en: string };
   price: number;
   oldPrice?: number;

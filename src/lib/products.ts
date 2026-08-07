@@ -4,6 +4,7 @@ export type ProductColor = { name: { vi: string; en: string }; hex: string };
 
 export type Product = {
   id: number;
+  slug: string;
   name: { vi: string; en: string };
   price: number;
   oldPrice?: number;
@@ -30,6 +31,7 @@ export type CategoryMeta = {
 
 type ProductRow = {
   id: number;
+  slug: string;
   name_vi: string;
   name_en: string;
   price: number;
@@ -59,6 +61,7 @@ function mapProduct(row: ProductRow, categorySlug?: string): Product {
 
   return {
     id: row.id,
+    slug: row.slug,
     name: { vi: row.name_vi, en: row.name_en },
     price: row.price,
     oldPrice: row.old_price ?? undefined,
@@ -74,7 +77,7 @@ function mapProduct(row: ProductRow, categorySlug?: string): Product {
 }
 
 const PRODUCT_SELECT =
-  "id, name_vi, name_en, price, old_price, tag_vi, tag_en, rating, description_vi, description_en, product_images(image_url, sort_order), product_colors(name_vi, name_en, hex_color, sort_order), product_sizes(label, sort_order)";
+  "id, slug, name_vi, name_en, price, old_price, tag_vi, tag_en, rating, description_vi, description_en, product_images(image_url, sort_order), product_colors(name_vi, name_en, hex_color, sort_order), product_sizes(label, sort_order)";
 
 /** All active products in a given category (by URL slug, e.g. "do-nam"). */
 export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
@@ -89,13 +92,13 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
   return (data as unknown as ProductRow[]).map((row) => mapProduct(row, categorySlug));
 }
 
-/** A single product, scoped to its category slug (matches the /san-pham/[category]/[id] route). */
-export async function getProduct(categorySlug: string, id: number): Promise<Product | null> {
+/** A single product, scoped to its category slug (matches the /san-pham/[category]/[slug] route). */
+export async function getProduct(categorySlug: string, productSlug: string): Promise<Product | null> {
   const { data, error } = await supabase
     .from("products")
     .select(`${PRODUCT_SELECT}, categories!inner(href)`)
     .eq("categories.href", `/${categorySlug}`)
-    .eq("id", id)
+    .eq("slug", productSlug)
     .single();
 
   if (error || !data) return null;

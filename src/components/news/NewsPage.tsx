@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, ChevronRight } from "lucide-react";
+import { ArrowRight, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useI18nStore } from "@/lib/i18n/store";
 import type { Article } from "@/lib/articles";
 
@@ -41,9 +42,31 @@ const T = {
   featured: { vi: "NỔI BẬT", en: "FEATURED" },
 };
 
+const PAGE_SIZE = 10;
+
 export default function NewsPage({ articles }: { articles: Article[] }) {
   const lang = useI18nStore((s) => s.lang);
   const [featured, ...rest] = articles;
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(rest.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [articles]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paginated = rest.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const goToPage = (n: number) => {
+    if (n < 1 || n > totalPages || n === page) return;
+    setPage(n);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div style={{ backgroundColor: C.bg, color: "#fff" }}>
@@ -98,11 +121,11 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
       </section>
 
       {/* ════════ FEATURED ════════ */}
-      {featured && (
+      {featured && page === 1 && (
         <section className="w-full" style={{ backgroundColor: C.bg }}>
           <div className="mx-auto max-w-screen-2xl px-8 pt-14 md:px-16 lg:px-24">
             <Link
-              href={`/tin-tuc/${featured.id}`}
+              href={`/tin-tuc/${featured.slug}`}
               className="group relative grid overflow-hidden lg:grid-cols-2"
               style={{ border: `1px solid ${C.border}` }}
             >
@@ -114,7 +137,7 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
                 />
                 <div
                   className="absolute left-4 top-4 px-3 py-1.5 text-[10px] font-black tracking-[0.25em] uppercase"
-                  style={{ backgroundColor: featured.glow, color: "#000" }}
+                  style={{ backgroundColor: featured.accent, color: "#000" }}
                 >
                   {T.featured[lang]}
                 </div>
@@ -125,7 +148,7 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
               >
                 <p
                   className="mb-3 text-[11px] font-black tracking-[0.25em] uppercase"
-                  style={{ color: featured.glow }}
+                  style={{ color: featured.accent }}
                 >
                   {featured.category[lang]}
                 </p>
@@ -164,12 +187,15 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
 
       {/* ════════ GRID ════════ */}
       <section className="w-full" style={{ backgroundColor: C.bg }}>
-        <div className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24">
+        <div
+          ref={gridRef}
+          className="mx-auto max-w-screen-2xl px-8 py-14 md:px-16 lg:px-24"
+        >
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((a) => (
+            {paginated.map((a) => (
               <Link
                 key={a.id}
-                href={`/tin-tuc/${a.id}`}
+                href={`/tin-tuc/${a.slug}`}
                 className="group relative flex h-full flex-col overflow-hidden"
                 style={{ border: `1px solid ${C.border}` }}
               >
@@ -189,7 +215,7 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
                 </div>
                 <div
                   className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
-                  style={{ backgroundColor: a.glow }}
+                  style={{ backgroundColor: a.accent }}
                 />
                 <div
                   className="flex flex-1 flex-col p-6"
@@ -197,7 +223,7 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
                 >
                   <div
                     className="mb-2 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.15em]"
-                    style={{ color: a.glow }}
+                    style={{ color: a.accent }}
                   >
                     <span>{a.category[lang]}</span>
                     <span style={{ color: C.border }}>|</span>
@@ -227,28 +253,44 @@ export default function NewsPage({ articles }: { articles: Article[] }) {
           </div>
 
           {/* Pagination */}
-          <div className="mt-14 flex items-center justify-center gap-2">
-            {[1, 2, 3].map((n) => (
+          {totalPages > 1 && (
+            <div className="mt-14 flex items-center justify-center gap-2">
               <button
-                key={n}
-                className="flex h-10 w-10 items-center justify-center text-[12px] font-bold transition-colors"
-                style={
-                  n === 1
-                    ? { backgroundColor: C.accent, color: "#000" }
-                    : { border: `1px solid ${C.border}`, color: C.muted }
-                }
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 1}
+                className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                style={{ border: `1px solid ${C.border}` }}
+                aria-label="Previous page"
               >
-                {n}
+                <ChevronLeft size={15} />
               </button>
-            ))}
-            <button
-              className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white"
-              style={{ border: `1px solid ${C.border}` }}
-              aria-label="Next page"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => goToPage(n)}
+                  className="flex h-10 w-10 items-center justify-center text-[12px] font-bold transition-colors"
+                  style={
+                    n === page
+                      ? { backgroundColor: C.accent, color: "#000" }
+                      : { border: `1px solid ${C.border}`, color: C.muted }
+                  }
+                >
+                  {n}
+                </button>
+              ))}
+
+              <button
+                onClick={() => goToPage(page + 1)}
+                disabled={page === totalPages}
+                className="flex h-10 w-10 items-center justify-center text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-white/60"
+                style={{ border: `1px solid ${C.border}` }}
+                aria-label="Next page"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
