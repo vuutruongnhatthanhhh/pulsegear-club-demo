@@ -5,8 +5,9 @@ const config = {
   companyField: "DAI & PARTNERS",
 
   // SEO
-  seoTitle: "DAI & PARTNERS",
-  seoDescription: "Website bán đồ thể thao",
+  seoTitle: "PULSEGEAR.CLUB | Trang Phục & Phụ Kiện Thể Thao Hiệu Suất Cao",
+  seoDescription:
+    "PULSEGEAR.CLUB - trang phục và phụ kiện tập luyện hiệu suất cao, thiết kế cho những người không bao giờ dừng lại. Mua sắm đồ thể thao chính hãng, giao hàng toàn quốc.",
 
   //SOCIAL
   facebook: "https://www.facebook.com/profile.php?id=61577630908608",

@@ -1,7 +1,8 @@
 import config from "@/config";
 
 export const baseOpenGraph = {
-  locale: "en_US",
-  type: "website",
-  siteName: `${config.companyName}`,
+  type: "website" as const,
+  siteName: config.companyName,
+  locale: "vi_VN",
+  alternateLocale: ["en_US"],
 };

@@ -1,43 +1,39 @@
-"use client";
+import type { Metadata } from "next";
+import { getArticle } from "@/lib/articles";
+import { baseOpenGraph } from "@/app/shared-metadata";
+import ArticleDetailPageClient from "./article-detail-client";
 
-import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
-import ArticleDetail from "@/components/news/ArticleDetail";
-import PageLoading from "@/components/PageLoading";
-import { getArticle, getArticles, type Article } from "@/lib/articles";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getArticle(slug);
+  if (!article) return {};
 
-export default function ArticleDetailPage() {
-  const params = useParams<{ slug: string }>();
-  const slug = params.slug;
+  const title = article.title.vi;
+  const description = article.excerpt.vi;
 
-  const [article, setArticle] = useState<Article | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [related, setRelated] = useState<Article[]>([]);
+  return {
+    title,
+    description,
+    openGraph: {
+      ...baseOpenGraph,
+      type: "article",
+      title,
+      description,
+      images: article.img ? [{ url: article.img, width: 1200, height: 750 }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: article.img ? [article.img] : undefined,
+    },
+  };
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    setArticle(null);
-    setChecked(false);
-    setRelated([]);
-
-    getArticle(slug).then((data) => {
-      if (cancelled) return;
-      setArticle(data);
-      setChecked(true);
-    });
-
-    getArticles().then((data) => {
-      if (cancelled) return;
-      setRelated(data.filter((a) => a.slug !== slug).slice(0, 3));
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
-
-  if (checked && !article) notFound();
-  if (!article) return <PageLoading />;
-
-  return <ArticleDetail article={article} related={related} />;
+export default function Page() {
+  return <ArticleDetailPageClient />;
 }

@@ -1,22 +1,18 @@
-"use client";
+import type { Metadata } from "next";
+import { baseOpenGraph } from "@/app/shared-metadata";
+import NewsPageClient from "./news-page-client";
 
-import { useEffect, useState } from "react";
-import NewsPage from "@/components/news/NewsPage";
-import PageLoading from "@/components/PageLoading";
-import { getArticles, type Article } from "@/lib/articles";
+const title = "Tin Tức & Cảm Hứng";
+const description =
+  "Mẹo tập luyện, câu chuyện vận động viên và tin tức mới nhất từ PULSEGEAR.CLUB.";
 
-export default function TinTucPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loaded, setLoaded] = useState(false);
+export const metadata: Metadata = {
+  title,
+  description,
+  openGraph: { ...baseOpenGraph, type: "website", title, description },
+  twitter: { card: "summary_large_image", title, description },
+};
 
-  useEffect(() => {
-    getArticles().then((data) => {
-      setArticles(data);
-      setLoaded(true);
-    });
-  }, []);
-
-  if (!loaded) return <PageLoading />;
-
-  return <NewsPage articles={articles} />;
+export default function Page() {
+  return <NewsPageClient />;
 }

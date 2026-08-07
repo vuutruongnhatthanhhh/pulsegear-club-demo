@@ -1,59 +1,41 @@
-"use client";
+import type { Metadata } from "next";
+import { getDropById } from "@/lib/drops";
+import { baseOpenGraph } from "@/app/shared-metadata";
+import DropDetailPageClient from "./drop-detail-client";
 
-import { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
-import CategoryPage from "@/components/category/CategoryPage";
-import PageLoading from "@/components/PageLoading";
-import { getDropById, type Drop } from "@/lib/drops";
-import { getProductsByDrop, type Product } from "@/lib/products";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const id = Number((await params).id);
+  if (!Number.isFinite(id)) return {};
 
-export default function DropDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = Number(params.id);
+  const drop = await getDropById(id);
+  if (!drop) return {};
 
-  const [drop, setDrop] = useState<Drop | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const title = drop.title;
+  const description = drop.sub?.vi || `Khám phá bộ sưu tập ${drop.title} tại PULSEGEAR.CLUB.`;
 
-  useEffect(() => {
-    let cancelled = false;
-    window.scrollTo(0, 0);
-    setDrop(null);
-    setChecked(false);
-    setProducts([]);
+  return {
+    title,
+    description,
+    openGraph: {
+      ...baseOpenGraph,
+      type: "website",
+      title,
+      description,
+      images: drop.img ? [{ url: drop.img, width: 1200, height: 630 }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: drop.img ? [drop.img] : undefined,
+    },
+  };
+}
 
-    if (!Number.isFinite(id)) {
-      setChecked(true);
-      return;
-    }
-
-    getDropById(id).then((data) => {
-      if (cancelled) return;
-      setDrop(data);
-      setChecked(true);
-      if (!data) return;
-
-      getProductsByDrop(id).then((list) => {
-        if (!cancelled) setProducts(list);
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  if (checked && !drop) notFound();
-  if (!drop) return <PageLoading />;
-
-  return (
-    <CategoryPage
-      slug={`bo-suu-tap-${drop.id}`}
-      title={{ vi: drop.title, en: drop.title }}
-      sub={drop.sub}
-      accent={drop.glow}
-      heroImage={drop.img}
-      products={products}
-    />
-  );
+export default function Page() {
+  return <DropDetailPageClient />;
 }

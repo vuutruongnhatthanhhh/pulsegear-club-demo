@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import config from "@/config";
 import ContactBox from "@/components/contact/ContactBox";
 import { baseOpenGraph } from "./shared-metadata";
+import { SITE_URL } from "@/lib/seo";
 import Script from "next/script";
 import { Toaster } from "sonner";
 import BackToTopButton from "@/components/layout/BackToTopButton";
@@ -25,15 +26,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     template: `%s | ${config.companyName}`,
-    default: `${config.companyName}`,
+    default: config.seoTitle,
   },
   description: config.seoDescription,
+  keywords: [
+    "pulsegear",
+    "đồ thể thao",
+    "trang phục tập gym",
+    "quần áo thể thao",
+    "phụ kiện thể thao",
+  ],
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-icon.jpg",
   },
-  openGraph: baseOpenGraph,
+  openGraph: {
+    ...baseOpenGraph,
+    title: config.seoTitle,
+    description: config.seoDescription,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: config.seoTitle,
+    description: config.seoDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
