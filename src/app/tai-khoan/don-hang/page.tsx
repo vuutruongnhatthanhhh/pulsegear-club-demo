@@ -59,6 +59,10 @@ const STATUS_META: Record<OrderStatus, { label: { vi: string; en: string }; clas
     label: { vi: "Đã giao", en: "Delivered" },
     className: "bg-green-500/15 text-green-400",
   },
+  cancelled: {
+    label: { vi: "Đã hủy", en: "Cancelled" },
+    className: "bg-red-500/15 text-red-400",
+  },
 };
 
 const formatPrice = (n: number) => n.toLocaleString("vi-VN") + "₫";

@@ -2,7 +2,7 @@ import { supabase } from "./supabaseClient";
 import type { CartItem } from "./cart/store";
 
 export type PaymentMethod = "cod" | "bank";
-export type OrderStatus = "pending" | "confirmed" | "shipping" | "delivered";
+export type OrderStatus = "pending" | "confirmed" | "shipping" | "delivered" | "cancelled";
 
 export type OrderItemRecord = {
   id: number;
